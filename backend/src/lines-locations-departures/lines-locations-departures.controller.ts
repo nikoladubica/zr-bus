@@ -9,4 +9,9 @@ export class LinesLocationsDeparturesController {
     findAll() {
         return this.service.findAll();
     }
+
+    @Get(':lineLocationId')
+    findByLineLocationId(@Param('lineLocationId') lineLocationId: number) {
+        return this.service.findByLineLocationId(lineLocationId);
+    }
 }

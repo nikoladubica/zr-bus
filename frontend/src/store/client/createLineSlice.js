@@ -1,4 +1,4 @@
-import { LINES_ROUTES, LINES_LOCATIONS } from '../../utils/api';
+import { LINES_ROUTES, LINES_LOCATIONS, LINES_LOCATIONS_DEPARTURES } from '../../utils/api';
 import { position } from '../../utils/enums';
 
 const createLineSlice = (set, get) => ({
@@ -6,6 +6,8 @@ const createLineSlice = (set, get) => ({
     line: null,
     data: [],
     linesLocations: [],
+    departures: [],
+    selectedStopId: null,
     currentLocation: {
         lat: null,
         lng: null,
@@ -63,6 +65,13 @@ const createLineSlice = (set, get) => ({
 
         set({ data: mapped.filter((element) => !!element) });
     },
+    fetchDepartures: async (ids, locationId) => {
+        const results = await Promise.all(
+            ids.map((id) => fetch(`${LINES_LOCATIONS_DEPARTURES}/${id}`).then((r) => r.json()))
+        );
+        set({ departures: results, selectedStopId: locationId });
+    },
+    clearSelectedStop: () => set({ departures: [], selectedStopId: null }),
     fetchLinesLocations: async (lineId) => {
         const fullUrl = `${LINES_LOCATIONS}/${lineId}`;
 

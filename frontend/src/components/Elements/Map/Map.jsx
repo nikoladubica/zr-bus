@@ -1,9 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import {
     MapContainer,
     TileLayer,
     CircleMarker,
-    Popup,
     LayersControl,
     Polyline,
     Pane,
@@ -28,6 +27,10 @@ const Map = () => {
     const fetchLines = useStore((state) => state.fetchLines);
     const filterLineById = useStore((state) => state.filterLineById);
     const getCurrentLocation = useStore((state) => state.getCurrentLocation);
+    const departures = useStore((state) => state.departures);
+    const selectedStopId = useStore((state) => state.selectedStopId);
+    const fetchDepartures = useStore((state) => state.fetchDepartures);
+    const clearSelectedStop = useStore((state) => state.clearSelectedStop);
 
     useEffect(() => {
         fetchLines();
@@ -47,6 +50,28 @@ const Map = () => {
             getClosestStation(linesLocations, currentLocation),
         );
     }, [linesLocations, currentLocation]);
+
+    const formatTime = (ts) => ts.slice(0, 5);
+
+    const uniqueStops = useMemo(() => {
+        const byLocation = {};
+        linesLocations.forEach((marker) => {
+            const locId = marker?.locations?.id;
+            if (!byLocation[locId]) {
+                byLocation[locId] = { locationId: locId, location: marker.locations, entries: [] };
+            }
+            byLocation[locId].entries.push({ id: marker.id, stop_number: marker.stop_number });
+        });
+        return Object.values(byLocation).map((s) => ({
+            ...s,
+            entries: s.entries.sort((a, b) => a.stop_number - b.stop_number),
+        }));
+    }, [linesLocations]);
+
+    const selectedStop = useMemo(
+        () => uniqueStops.find((s) => s.locationId === selectedStopId) ?? null,
+        [uniqueStops, selectedStopId],
+    );
 
     const closestStation = useMemo(() => {
         const station = getClosestStation(linesLocations, currentLocation);
@@ -75,6 +100,7 @@ const Map = () => {
             </h2>
 
             <Card className="p-2! md:p-2!">
+                <div className="relative">
                 <MapContainer
                     className="MapContainer w-full h-120 bg-light-gray-mild rounded-2xl"
                     center={mapCenter}
@@ -102,43 +128,39 @@ const Map = () => {
                     </LayersControl>
 
                     {/* Bus Stops */}
-                    {linesLocations.length > 0 && (
+                    {uniqueStops.length > 0 && (
                         <Pane name="stopsPane" style={{ zIndex: 650 }}>
-                            {Array.from(linesLocations).map((marker, index) => (
-                                <CircleMarker
-                                    key={`marker_${index}`}
-                                    center={[
-                                        marker?.locations?.lat,
-                                        marker?.locations?.lng,
-                                    ]}
-                                    radius={6}
-                                    pathOptions={{
-                                        color: line?.hex_color || '#404040',
-                                        fillColor: '#ffffff',
-                                        fillOpacity: 1,
-                                    }}
-                                    eventHandlers={{
-                                        mouseover: (event) =>
-                                            event.target.openPopup(),
-                                        mouseout: (event) =>
-                                            event.target.closePopup(),
-                                    }}
-                                >
-                                    <Pane
-                                        key={`key_popupPane_${index}`}
-                                        name={`popupPane_${index}`}
-                                        style={{ zIndex: 651 }}
-                                    >
-                                        <Popup>
-                                            Stanica broj: {marker?.stop_number}
-                                            <br />
-                                            <span className="font-medium">
-                                                {marker?.locations?.lat_name}
-                                            </span>
-                                        </Popup>
-                                    </Pane>
-                                </CircleMarker>
-                            ))}
+                            {uniqueStops.map((stop) => {
+                                const isSelected = selectedStopId === stop.locationId;
+                                return (
+                                    <CircleMarker
+                                        key={`marker_${stop.locationId}`}
+                                        center={[stop.location?.lat, stop.location?.lng]}
+                                        radius={isSelected ? 9 : 6}
+                                        pathOptions={
+                                            isSelected
+                                                ? {
+                                                    color: '#ffffff',
+                                                    weight: 2.5,
+                                                    fillColor: line?.hex_color || '#404040',
+                                                    fillOpacity: 1,
+                                                }
+                                                : {
+                                                    color: line?.hex_color || '#404040',
+                                                    weight: 1,
+                                                    fillColor: '#ffffff',
+                                                    fillOpacity: 1,
+                                                }
+                                        }
+                                        eventHandlers={{
+                                            click: () => fetchDepartures(
+                                                stop.entries.map((e) => e.id),
+                                                stop.locationId,
+                                            ),
+                                        }}
+                                    />
+                                );
+                            })}
                         </Pane>
                     )}
 
@@ -195,6 +217,51 @@ const Map = () => {
                         </>
                     )}
                 </MapContainer>
+
+                {/* Stop info panel */}
+                {selectedStop && (
+                    <div className="absolute bottom-4 left-4 z-1000 w-72 rounded-2xl backdrop-blur-xl bg-black/60 border border-white/15 shadow-2xl p-4">
+                        <div className="flex items-start justify-between gap-3">
+                            <div>
+                                <p className="font-semibold text-white text-sm leading-snug">
+                                    {selectedStop.location?.lat_name}
+                                </p>
+                                <p className="text-xs text-white/40 mt-0.5">
+                                    Stanica {selectedStop.entries.map((e) => e.stop_number).join(' / ')}
+                                </p>
+                            </div>
+                            <button
+                                onClick={clearSelectedStop}
+                                className="text-white/30 hover:text-white/70 transition-colors text-base leading-none mt-0.5 shrink-0"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                        {departures.some((g) => g.length > 0) && (
+                            <>
+                                <div className="my-3 border-t border-white/10" />
+                                {departures.map((group, groupIndex) => (
+                                    <div key={groupIndex}>
+                                        {groupIndex > 0 && (
+                                            <div className="my-2 border-t border-white/10" />
+                                        )}
+                                        <div className="flex flex-wrap gap-1.5">
+                                            {group.map((dep) => (
+                                                <span
+                                                    key={dep.id}
+                                                    className="text-xs bg-white/10 border border-white/10 px-2 py-1 rounded-lg text-white/80"
+                                                >
+                                                    {formatTime(dep.departure)}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </>
+                        )}
+                    </div>
+                )}
+                </div>
             </Card>
         </>
     );

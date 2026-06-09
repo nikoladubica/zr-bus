@@ -1,8 +1,13 @@
+import { useEffect } from 'react';
 import { useMap } from 'react-leaflet';
 
 const MapChangeView = ({ center, zoom }) => {
     const map = useMap();
-    map.setView(center, zoom);
+
+    useEffect(() => {
+        map.setView(center, zoom);
+    }, [center, zoom]);
+
     return null;
 };
 

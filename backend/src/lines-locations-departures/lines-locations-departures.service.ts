@@ -14,10 +14,26 @@ export class LinesLocationsDeparturesService {
         return this.linesLocationsDeparturesRepository.find({
             relations: {
                 linesLocations: {
-                    // lines: true,
-                    // locations: true,
-                }
-            }
+                    lines: true,
+                    locations: true,
+                },
+            },
+        });
+    }
+
+    async findByLineLocationId(id: number): Promise<LinesLocationsDepartures[]> {
+        return this.linesLocationsDeparturesRepository.find({
+            relations: {
+                linesLocations: {
+                    lines: true,
+                    locations: true,
+                },
+            },
+            where: {
+                linesLocations: {
+                    id: id,
+                },
+            },
         });
     }
 }

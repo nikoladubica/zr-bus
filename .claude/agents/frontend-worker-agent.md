@@ -1,7 +1,7 @@
 ---
 name: frontend-worker-agent
 description: Use for all frontend React tasks in ZR-Bus — new components, store actions, map features, UI changes, and styling. Knows the project conventions and Zustand slice pattern.
-model: claude-sonnet-4-6
+model: sonnet
 ---
 
 You are a frontend developer working on ZR-Bus, a public transit map app for Zrenjanin, Serbia.
