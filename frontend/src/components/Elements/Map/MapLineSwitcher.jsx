@@ -1,7 +1,7 @@
 import MapLineSwitcherItem from './MapLineSwitcherItem';
 import useStore from '../../../store/client/useStore';
 
-function MapLineSwitcher() {
+const MapLineSwitcher = () => {
     const data = useStore((state) => state.data);
 
     return (

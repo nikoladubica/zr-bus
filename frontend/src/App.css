@@ -50,11 +50,44 @@
 }
 
 .leaflet-pulse {
-  animation: pulse-opacity 1.5s ease-in-out infinite;
+    animation: pulse-opacity 1.5s ease-in-out infinite;
+}
+
+.animated-border {
+    background: linear-gradient(to right, #ffffff80, #ffffff33);
+    background-size: 300% 300%;
+    animation: border-rotate 2s linear infinite;
 }
 
 @keyframes pulse-opacity {
-  0%   { opacity: 0.15; }
-  50%  { opacity: 1; }
-  100% { opacity: 0.15; }
+    0% {
+        opacity: 0.15;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.15;
+    }
+}
+
+@keyframes border-rotate {
+    0% {
+        background-position: 0% 50%;
+    }
+    20% {
+        background-position: 50% 100%;
+    }
+    40% {
+        background-position: 100% 50%;
+    }
+    60% {
+        background-position: 50% 0%;
+    }
+    80% {
+        background-position: 0% 0%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
 }

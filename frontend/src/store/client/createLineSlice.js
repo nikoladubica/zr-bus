@@ -1,4 +1,5 @@
 import { LINES_ROUTES, LINES_LOCATIONS } from '../../utils/api';
+import { position } from '../../utils/enums';
 
 const createLineSlice = (set, get) => ({
     activeLine: 1,
@@ -9,6 +10,9 @@ const createLineSlice = (set, get) => ({
         lat: null,
         lng: null,
     },
+    mapCenter: position || { lat: null, lng: null },
+    mapZoom: 13,
+
     updateActiveLine: (newId) => set({ activeLine: newId }),
     resetActiveLine: () => set({ activeLine: 1 }),
     fetchLines: async () => {
@@ -65,8 +69,6 @@ const createLineSlice = (set, get) => ({
         const response = await fetch(fullUrl);
         const printable = await response.json();
 
-        // console.log("break: ", printable);
-
         set({ linesLocations: printable });
     },
     filterLineById: (id) => {
@@ -92,6 +94,15 @@ const createLineSlice = (set, get) => ({
                     lng: position?.coords?.longitude || null,
                 },
             });
+        });
+    },
+    getCurrentLocationWithRecenter: () => {
+        const { currentLocation, getCurrentLocation } = get();
+
+        getCurrentLocation();
+        set({
+            mapCenter: currentLocation,
+            mapZoom: 15,
         });
     },
 });

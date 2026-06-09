@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react';
 import useStore from '../../../store/client/useStore';
 import arrow from '../../../assets/icons/arrow/arrow-right-white.svg';
 
-function MapLineSwitcherItem({ item }) {
+const MapLineSwitcherItem = ({ item }) => {
     const activeLine = useStore((state) => state.activeLine);
     const filterLineById = useStore((state) => state.filterLineById);
 

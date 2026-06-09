@@ -1,6 +1,12 @@
 export const tileLayers = [
     {
         name: 'Grayscale',
+        url: 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png',
+        selected: true,
+        subdomains: [],
+    },
+    {
+        name: 'Grayscale-Light',
         url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png',
         selected: true,
         subdomains: [],
@@ -37,4 +43,4 @@ export const tileLayers = [
     },
 ];
 
-export const position = [45.380324641019214, 20.390627789875914];
+export const position = { lat: 45.380324641019214, lng: 20.390627789875914 };
