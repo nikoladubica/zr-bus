@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useLocation, NavLink } from 'react-router';
 import useStore from '../../../store/client/useStore';
+import { useScript } from '../../../context/ScriptContext.jsx';
 
 import Card from '../../UI/Card';
 import Button from '../../UI/Button';
@@ -10,6 +11,7 @@ import locate from '../../../assets/icons/locate/locate-white.svg';
 
 const Header = () => {
     let location = useLocation();
+    const { script, toggleScript } = useScript();
 
     const getCurrentLocationWithRecenter = useStore(
         (state) => state.getCurrentLocationWithRecenter,
@@ -29,13 +31,20 @@ const Header = () => {
                 <img src={logo} alt="ZRBus logo" height={36} width={100} />
             </NavLink>
 
-            {location.pathname === '/' && (
+            <div className="flex items-center gap-2">
                 <Button
-                    icon={locate}
-                    text="Lociraj me"
-                    onClick={locateMeHandler}
+                    text={script === 'latin' ? 'Ћир' : 'Lat'}
+                    onClick={toggleScript}
                 />
-            )}
+
+                {location.pathname === '/' && (
+                    <Button
+                        icon={locate}
+                        text="Lociraj me"
+                        onClick={locateMeHandler}
+                    />
+                )}
+            </div>
         </Card>
     );
 };

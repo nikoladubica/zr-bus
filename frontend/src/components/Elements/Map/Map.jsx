@@ -16,8 +16,10 @@ import Card from '../../UI/Card';
 import { tileLayers } from '../../../utils/enums';
 import { getClosestStation } from '../../../utils/helpers';
 import useStore from '../../../store/client/useStore';
+import { useScript } from '../../../context/ScriptContext.jsx';
 
 const Map = () => {
+    const { script } = useScript();
     const data = useStore((state) => state.data);
     const line = useStore((state) => state.line);
     const linesLocations = useStore((state) => state.linesLocations);
@@ -96,7 +98,7 @@ const Map = () => {
             <MapLineSwitcher />
 
             <h2 className="text-left font-bold">
-                [Linija {line?.number}] {line?.lat_name}
+                [Linija {line?.number}] {script === 'latin' ? line?.lat_name : line?.cyr_name}
             </h2>
 
             <Card className="p-2! md:p-2!">
@@ -224,7 +226,7 @@ const Map = () => {
                         <div className="flex items-start justify-between gap-3">
                             <div>
                                 <p className="font-semibold text-white text-sm leading-snug">
-                                    {selectedStop.location?.lat_name}
+                                    {script === 'latin' ? selectedStop.location?.lat_name : selectedStop.location?.cyr_name}
                                 </p>
                                 <p className="text-xs text-white/40 mt-0.5">
                                     Stanica {selectedStop.entries.map((e) => e.stop_number).join(' / ')}
