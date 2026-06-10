@@ -77,3 +77,13 @@ Issues spotted during codebase analysis but not yet in scope of any ticket. Agen
 - File: `frontend/src/components/Pages/Home.jsx`
 - The mobile overlay for `<MapLineSwitcher />` uses `top-[88px]` — a hardcoded offset that assumes a fixed header height. Will break if the header height changes.
 - Interim state; will be resolved when TICKET-016 (header/settings redesign) replaces the Header overlay.
+
+**[ASSET-001] `arrow-right-white.svg` is now an orphaned asset**
+- File: `frontend/src/assets/icons/arrow/arrow-right-white.svg`
+- Was only used in `MapLineSwitcherItem.jsx`, which was deleted in TICKET-010. The file can be removed.
+- Not covered by any ticket yet.
+
+**[ICON-001] Locate icon is white-only — invisible in light mode**
+- File: `frontend/src/assets/icons/locate/locate-white.svg`
+- The locate icon is a white SVG, making it invisible against the light theme header background.
+- Not covered by any ticket yet.

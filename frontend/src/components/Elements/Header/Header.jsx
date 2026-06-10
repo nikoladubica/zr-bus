@@ -4,9 +4,6 @@ import useStore from '../../../store/client/useStore';
 import { useScript } from '../../../context/ScriptContext.jsx';
 import { useTheme } from '../../../context/ThemeContext.jsx';
 
-import Card from '../../UI/Card';
-import Button from '../../UI/Button';
-
 import logo from '../../../assets/zrbus_logo.svg';
 import locate from '../../../assets/icons/locate/locate-white.svg';
 
@@ -28,31 +25,36 @@ const Header = () => {
     }, [getCurrentLocationWithRecenter]);
 
     return (
-        <Card className="flex items-center justify-between h-23">
+        <div className="flex items-center justify-between px-5 h-23">
             <NavLink to="/">
                 <img src={logo} alt="ZRBus logo" height={36} width={100} />
             </NavLink>
 
-            <div className="flex items-center gap-2">
-                <Button
-                    text={theme === 'dark' ? '☀' : '☾'}
+            <div className="flex items-center gap-1">
+                <button
+                    className="w-9 h-9 flex items-center justify-center rounded-xl dark:hover:bg-white/10 hover:bg-black/5 transition-colors dark:text-white text-gray-800"
                     onClick={toggleTheme}
-                />
+                >
+                    {theme === 'dark' ? '☀' : '☾'}
+                </button>
 
-                <Button
-                    text={script === 'latin' ? 'Ћир' : 'Lat'}
+                <button
+                    className="h-9 px-2.5 flex items-center justify-center rounded-xl dark:hover:bg-white/10 hover:bg-black/5 transition-colors dark:text-white text-gray-800 text-sm font-medium"
                     onClick={toggleScript}
-                />
+                >
+                    {script === 'latin' ? 'Ћир' : 'Lat'}
+                </button>
 
                 {location.pathname === '/' && (
-                    <Button
-                        icon={locate}
-                        text="Lociraj me"
+                    <button
+                        className="w-9 h-9 flex items-center justify-center rounded-xl dark:hover:bg-white/10 hover:bg-black/5 transition-colors"
                         onClick={locateMeHandler}
-                    />
+                    >
+                        <img src={locate} alt="Locate" height={16} width={16} />
+                    </button>
                 )}
             </div>
-        </Card>
+        </div>
     );
 };
 
