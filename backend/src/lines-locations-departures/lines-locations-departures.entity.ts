@@ -7,13 +7,22 @@ import {
     PrimaryGeneratedColumn,
 } from 'typeorm';
 
+export type DayType = 'workday' | 'saturday' | 'sunday';
+
 @Entity('lines_locations_departures')
 export class LinesLocationsDepartures {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ type: 'timestamp' })
-    departure: Date;
+    @Column({ type: 'time' })
+    departure: string;
+
+    @Column({
+        type: 'enum',
+        enum: ['workday', 'saturday', 'sunday'],
+        default: 'workday',
+    })
+    day_type: DayType;
 
     @ManyToOne(() => LinesLocations)
     @JoinColumn({ name: 'lines_locations_id' })

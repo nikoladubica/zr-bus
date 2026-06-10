@@ -60,9 +60,4 @@ Issues spotted during codebase analysis but not yet in scope of any ticket. Agen
 - Contains `<p className="read-the-docs">About us...</p>` — Vite boilerplate class and no real content.
 - Not covered by any ticket yet.
 
-**[DATA-001] Departure `departure` column is TIME not TIMESTAMP**
-- Backend entity declares `@Column({ type: 'timestamp' })` but the DB returns `"08:28:00"` (time-only string, no date).
-- Day-type grouping (Radni dan / Subota / Nedjelja) is not possible without a separate `day_type` field or a date-aware timestamp.
-- Frontend now correctly slices the string (`ts.slice(0, 5)`) to show HH:mm. Grouping was removed as there's no day data.
-- If schedule grouping is needed in future, the entity/column type needs a `day_type` column (e.g. `ENUM('workday','saturday','sunday')`) or the column must store full datetime values.
-- Not covered by any ticket yet.
+**[DATA-001] ~~Departure `departure` column is TIME not TIMESTAMP~~** ✅ Fixed in TICKET-018 — entity now uses `type: 'time'` / `string`, `day_type` ENUM column added, migration at `backend/migrations/001_add_day_type_to_departures.sql`
