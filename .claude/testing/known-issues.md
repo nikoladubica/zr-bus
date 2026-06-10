@@ -60,6 +60,15 @@ Issues spotted during codebase analysis but not yet in scope of any ticket. Agen
 
 **[PERF-001] ~~formatTime redefined on every render~~** ✅ Fixed — reduced to a one-liner slice, negligible cost.
 
+---
+
+## 2026-06-10 — TICKET-004 implementation scan
+
+**[ABOUT-001] About page has placeholder content**
+- File: `frontend/src/components/Pages/About.jsx`
+- Contains `<p className="read-the-docs">About us...</p>` — Vite boilerplate class and no real content.
+- Not covered by any ticket yet.
+
 **[DATA-001] Departure `departure` column is TIME not TIMESTAMP**
 - Backend entity declares `@Column({ type: 'timestamp' })` but the DB returns `"08:28:00"` (time-only string, no date).
 - Day-type grouping (Radni dan / Subota / Nedjelja) is not possible without a separate `day_type` field or a date-aware timestamp.
