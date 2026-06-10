@@ -13,6 +13,11 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+
+    --zrbus-accent: oklch(65% 0.18 235);
+    --zrbus-panel-width: 380px;
+    --surface-overlay: rgba(0, 0, 0, 0.72);
+    --surface-glass: rgba(255, 255, 255, 0.08);
 }
 
 a {

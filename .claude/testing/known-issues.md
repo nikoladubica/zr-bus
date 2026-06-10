@@ -61,3 +61,19 @@ Issues spotted during codebase analysis but not yet in scope of any ticket. Agen
 - Not covered by any ticket yet.
 
 **[DATA-001] ~~Departure `departure` column is TIME not TIMESTAMP~~** ✅ Fixed in TICKET-018 — entity now uses `type: 'time'` / `string`, `day_type` ENUM column added, migration at `backend/migrations/001_add_day_type_to_departures.sql`
+
+---
+
+## 2026-06-10 — TICKET-008 implementation scan
+
+**[ABOUT-001] (stale)** — The `read-the-docs` Vite placeholder originally logged in ABOUT-001 was resolved by TICKET-004. The entry is superseded.
+
+**[ABOUT-002] TODO: data source credits in About.jsx**
+- File: `frontend/src/components/Pages/About.jsx` line ~84
+- `{/* TODO: add data source credits */}` inside the "Izvori podataka" card — no ticket covers this yet.
+- Not covered by any ticket yet.
+
+**[HOME-001] Hardcoded mobile MapLineSwitcher offset in Home.jsx**
+- File: `frontend/src/components/Pages/Home.jsx`
+- The mobile overlay for `<MapLineSwitcher />` uses `top-[88px]` — a hardcoded offset that assumes a fixed header height. Will break if the header height changes.
+- Interim state; will be resolved when TICKET-016 (header/settings redesign) replaces the Header overlay.
