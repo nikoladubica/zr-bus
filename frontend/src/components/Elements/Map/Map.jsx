@@ -46,13 +46,6 @@ const Map = () => {
         filterLineById(1);
     }, [data, filterLineById]);
 
-    useEffect(() => {
-        console.log(
-            'break: ',
-            getClosestStation(linesLocations, currentLocation),
-        );
-    }, [linesLocations, currentLocation]);
-
     const formatTime = (ts) => ts.slice(0, 5);
 
     const uniqueStops = useMemo(() => {

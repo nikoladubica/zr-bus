@@ -8,10 +8,7 @@ Issues spotted during codebase analysis but not yet in scope of any ticket. Agen
 
 ### Frontend
 
-**[MAP-001] Debug console.log in Map.jsx**
-- File: `frontend/src/components/Elements/Map/Map.jsx` ~line 45–48
-- `console.log('break: ', getClosestStation(...))` logs closest station to browser console on every linesLocations/currentLocation change.
-- Covered by: TICKET-005
+**[MAP-001] ~~Debug console.log in Map.jsx~~** ✅ Fixed in TICKET-005
 
 **[MAP-002] Footer commented out in App.jsx**
 - File: `frontend/src/App.jsx`
@@ -40,15 +37,9 @@ Issues spotted during codebase analysis but not yet in scope of any ticket. Agen
 
 ### Backend
 
-**[CORS-001] CORS open to all origins**
-- File: `backend/src/main.ts`
-- `app.enableCors()` called with `origin: '*'` and a comment "tighten later". Accepting all origins in production is a security risk.
-- Covered by: TICKET-005
+**[CORS-001] ~~CORS open to all origins~~** ✅ Fixed in TICKET-005 — now `'*'` only in development, `ALLOWED_ORIGIN` env var in production
 
-**[SVC-001] Commented-out dead code in LinesRoutesService**
-- File: `backend/src/lines-routes/lines-routes.service.ts` lines 13–32
-- Old ORM-based `findAll` and `findByLineId` methods are commented out but never removed. The active implementations below them use createQueryBuilder instead.
-- Covered by: TICKET-005
+**[SVC-001] ~~Commented-out dead code in LinesRoutesService~~** ✅ Fixed in TICKET-005
 
 **[SVC-002] ~~LinesLocationsDepartures relations commented out~~** ✅ Fixed in TICKET-001
 

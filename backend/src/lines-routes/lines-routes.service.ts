@@ -10,27 +10,6 @@ export class LinesRoutesService {
         private linesRoutesRepository: Repository<LinesRoutes>,
     ) {}
 
-    // async findAll(): Promise<LinesRoutes[]> {
-    //     return this.linesRoutesRepository.find({
-    //         relations: {
-    //             lines: true,
-    //         },
-    //     });
-    // }
-
-    // async findByLineId(searchID: number): Promise<LinesRoutes[]> {
-    //     return this.linesRoutesRepository.find({
-    //         where: {
-    //             lines: {
-    //                 id: searchID,
-    //             },
-    //         },
-    //         relations: {
-    //             lines: true,
-    //         },
-    //     });
-    // }
-
     async findAll() {
         return this.linesRoutesRepository
             .createQueryBuilder('ll')
