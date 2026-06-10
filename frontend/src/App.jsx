@@ -6,15 +6,20 @@ import About from './components/Pages/About';
 import Header from './components/Elements/Header/Header';
 import Footer from './components/Elements/Footer/Footer';
 
+import { useTheme } from './context/ThemeContext.jsx';
 import './App.css';
 
 const App = () => {
+    const { theme } = useTheme();
+
     return (
         <div
-            className="h-screen w-screen p-8 overflow-x-hidden overflow-y-auto flex flex-col justify-start gap-8 bg-gray-800"
+            className={`h-screen w-screen p-8 overflow-x-hidden overflow-y-auto flex flex-col justify-start gap-8 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}
             style={{
                 background:
-                    'linear-gradient(135deg, oklch(27.8% 0.033 256.848) 0%, oklch(22% 0.04 260) 50%, oklch(18% 0.05 270) 100%)',
+                    theme === 'dark'
+                        ? 'linear-gradient(135deg, oklch(27.8% 0.033 256.848) 0%, oklch(22% 0.04 260) 50%, oklch(18% 0.05 270) 100%)'
+                        : 'linear-gradient(135deg, oklch(96% 0.01 256) 0%, oklch(93% 0.015 260) 50%, oklch(90% 0.02 270) 100%)',
             }}
         >
             <Header />
@@ -23,12 +28,6 @@ const App = () => {
                 <Routes>
                     <Route index element={<Home />} />
                     <Route path="o-nama" element={<About />} />
-
-                    {/* Nested example */}
-                    {/* <Route path="dashboard" element={<Dashboard />}>
-                        <Route index element={<Home />} />
-                        <Route path="settings" element={<Settings />} />
-                    </Route> */}
                 </Routes>
             </div>
 

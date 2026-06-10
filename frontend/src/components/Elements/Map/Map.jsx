@@ -3,7 +3,6 @@ import {
     MapContainer,
     TileLayer,
     CircleMarker,
-    LayersControl,
     Polyline,
     Pane,
 } from 'react-leaflet';
@@ -13,13 +12,14 @@ import MapLineSwitcher from './MapLineSwitcher';
 import MapChangeView from './MapChangeView';
 import Card from '../../UI/Card';
 
-import { tileLayers } from '../../../utils/enums';
 import { getClosestStation } from '../../../utils/helpers';
 import useStore from '../../../store/client/useStore';
 import { useScript } from '../../../context/ScriptContext.jsx';
+import { useTheme } from '../../../context/ThemeContext.jsx';
 
 const Map = () => {
     const { script } = useScript();
+    const { theme } = useTheme();
     const data = useStore((state) => state.data);
     const line = useStore((state) => state.line);
     const linesLocations = useStore((state) => state.linesLocations);
@@ -110,24 +110,15 @@ const Map = () => {
                     scrollWheelZoom={true}
                 >
                     <MapChangeView center={mapCenter} zoom={mapZoom} />
-                    <LayersControl>
-                        {tileLayers.map((layer, index) => (
-                            <LayersControl.BaseLayer
-                                key={`layer_${index}`}
-                                checked={layer.selected}
-                                name={layer.name}
-                            >
-                                {layer.subdomains.length > 0 ? (
-                                    <TileLayer
-                                        url={layer.url}
-                                        subdomains={layer.subdomains}
-                                    />
-                                ) : (
-                                    <TileLayer url={layer.url} />
-                                )}
-                            </LayersControl.BaseLayer>
-                        ))}
-                    </LayersControl>
+                    <TileLayer
+                        key={theme}
+                        url={
+                            theme === 'dark'
+                                ? 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png'
+                                : 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png'
+                        }
+                        subdomains={theme === 'light' ? ['a', 'b', 'c'] : []}
+                    />
 
                     {/* Bus Stops */}
                     {uniqueStops.length > 0 && (
@@ -222,36 +213,36 @@ const Map = () => {
 
                 {/* Stop info panel */}
                 {selectedStop && (
-                    <div className="absolute bottom-4 left-4 z-1000 w-72 rounded-2xl backdrop-blur-xl bg-black/60 border border-white/15 shadow-2xl p-4">
+                    <div className="absolute bottom-4 left-4 z-1000 w-72 rounded-2xl backdrop-blur-xl dark:bg-black/60 bg-white/80 dark:border-white/15 border-black/10 border shadow-2xl p-4">
                         <div className="flex items-start justify-between gap-3">
                             <div>
-                                <p className="font-semibold text-white text-sm leading-snug">
+                                <p className="font-semibold dark:text-white text-gray-900 text-sm leading-snug">
                                     {script === 'latin' ? selectedStop.location?.lat_name : selectedStop.location?.cyr_name}
                                 </p>
-                                <p className="text-xs text-white/40 mt-0.5">
+                                <p className="text-xs dark:text-white/40 text-gray-500 mt-0.5">
                                     Stanica {selectedStop.entries.map((e) => e.stop_number).join(' / ')}
                                 </p>
                             </div>
                             <button
                                 onClick={clearSelectedStop}
-                                className="text-white/30 hover:text-white/70 transition-colors text-base leading-none mt-0.5 shrink-0"
+                                className="dark:text-white/30 dark:hover:text-white/70 text-gray-400 hover:text-gray-700 transition-colors text-base leading-none mt-0.5 shrink-0"
                             >
                                 ✕
                             </button>
                         </div>
                         {departures.some((g) => g.length > 0) && (
                             <>
-                                <div className="my-3 border-t border-white/10" />
+                                <div className="my-3 border-t dark:border-white/10 border-black/10" />
                                 {departures.map((group, groupIndex) => (
                                     <div key={groupIndex}>
                                         {groupIndex > 0 && (
-                                            <div className="my-2 border-t border-white/10" />
+                                            <div className="my-2 border-t dark:border-white/10 border-black/10" />
                                         )}
                                         <div className="flex flex-wrap gap-1.5">
                                             {group.map((dep) => (
                                                 <span
                                                     key={dep.id}
-                                                    className="text-xs bg-white/10 border border-white/10 px-2 py-1 rounded-lg text-white/80"
+                                                    className="text-xs dark:bg-white/10 dark:border-white/10 dark:text-white/80 bg-black/5 border-black/10 border px-2 py-1 rounded-lg text-gray-700"
                                                 >
                                                     {formatTime(dep.departure)}
                                                 </span>

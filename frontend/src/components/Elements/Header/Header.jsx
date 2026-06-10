@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useLocation, NavLink } from 'react-router';
 import useStore from '../../../store/client/useStore';
 import { useScript } from '../../../context/ScriptContext.jsx';
+import { useTheme } from '../../../context/ThemeContext.jsx';
 
 import Card from '../../UI/Card';
 import Button from '../../UI/Button';
@@ -12,6 +13,7 @@ import locate from '../../../assets/icons/locate/locate-white.svg';
 const Header = () => {
     let location = useLocation();
     const { script, toggleScript } = useScript();
+    const { theme, toggleTheme } = useTheme();
 
     const getCurrentLocationWithRecenter = useStore(
         (state) => state.getCurrentLocationWithRecenter,
@@ -32,6 +34,11 @@ const Header = () => {
             </NavLink>
 
             <div className="flex items-center gap-2">
+                <Button
+                    text={theme === 'dark' ? '☀' : '☾'}
+                    onClick={toggleTheme}
+                />
+
                 <Button
                     text={script === 'latin' ? 'Ћир' : 'Lat'}
                     onClick={toggleScript}

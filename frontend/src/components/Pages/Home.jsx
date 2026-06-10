@@ -6,7 +6,7 @@ import info from '../../assets/icons/info/info-gray.svg';
 const Home = () => {
     return (
         <>
-            <h1 className="text-left text-white font-light">
+            <h1 className="text-left dark:text-white text-gray-900 font-light">
                 Najbrži način da nađeš autobus koji ti treba u Zrenjaninu
             </h1>
 
