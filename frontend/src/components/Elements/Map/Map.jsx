@@ -33,6 +33,9 @@ const Map = () => {
     const selectedStopId = useStore((state) => state.selectedStopId);
     const fetchDepartures = useStore((state) => state.fetchDepartures);
     const clearSelectedStop = useStore((state) => state.clearSelectedStop);
+    const isLoading = useStore((state) => state.isLoading);
+    const error = useStore((state) => state.error);
+    const geoError = useStore((state) => state.geoError);
 
     useEffect(() => {
         fetchLines();
@@ -93,6 +96,34 @@ const Map = () => {
             <h2 className="text-left font-bold">
                 [Linija {line?.number}] {script === 'latin' ? line?.lat_name : line?.cyr_name}
             </h2>
+
+            {geoError && (
+                <p className="text-xs dark:text-white/40 text-gray-400 text-center">
+                    ⚠ {geoError}
+                </p>
+            )}
+
+            {isLoading && data.length === 0 ? (
+                <Card className="p-2! md:p-2!">
+                    <div className="w-full h-120 rounded-2xl flex items-center justify-center dark:bg-white/5 bg-black/5">
+                        <div className="flex flex-col items-center gap-3">
+                            <div className="w-8 h-8 rounded-full border-2 dark:border-white/20 border-black/20 border-t-transparent animate-spin" />
+                            <span className="text-sm dark:text-white/50 text-gray-500">
+                                {script === 'cyrillic' ? 'Учитавање...' : 'Učitavanje...'}
+                            </span>
+                        </div>
+                    </div>
+                </Card>
+            ) : error ? (
+                <Card className="p-2! md:p-2!">
+                    <div className="w-full h-120 rounded-2xl flex items-center justify-center dark:bg-red-900/20 bg-red-50">
+                        <div className="flex flex-col items-center gap-2 text-center px-6">
+                            <span className="text-2xl">⚠</span>
+                            <p className="text-sm font-medium dark:text-red-300 text-red-600">{error}</p>
+                        </div>
+                    </div>
+                </Card>
+            ) : (
 
             <Card className="p-2! md:p-2!">
                 <div className="relative">
@@ -249,6 +280,7 @@ const Map = () => {
                 )}
                 </div>
             </Card>
+            )}
         </>
     );
 };

@@ -8,6 +8,9 @@ const createLineSlice = (set, get) => ({
     linesLocations: [],
     departures: [],
     selectedStopId: null,
+    isLoading: false,
+    error: null,
+    geoError: null,
     currentLocation: {
         lat: null,
         lng: null,
@@ -18,12 +21,39 @@ const createLineSlice = (set, get) => ({
     updateActiveLine: (newId) => set({ activeLine: newId }),
     resetActiveLine: () => set({ activeLine: 1 }),
     fetchLines: async () => {
-        const response = await fetch(LINES_ROUTES);
-        const structured = await response.json();
+        set({ isLoading: true, error: null });
+        try {
+            const response = await fetch(LINES_ROUTES);
+            if (!response.ok) throw new Error(response.status);
+            const structured = await response.json();
 
-        const mapped = structured.map((item, index) => {
-            if (item?.line?.direction !== null) {
-                if (item?.line?.direction === 'A') {
+            const mapped = structured.map((item, index) => {
+                if (item?.line?.direction !== null) {
+                    if (item?.line?.direction === 'A') {
+                        return [
+                            {
+                                id: item?.id,
+                                line_id: item?.line?.id,
+                                number: item?.line?.number,
+                                direction: item?.line?.direction,
+                                hex_color: item?.line?.hex_color,
+                                lat_name: item?.line?.lat_name,
+                                cyr_name: item?.line?.cyr_name,
+                                route: item?.route,
+                            },
+                            {
+                                id: structured?.[index + 1]?.id,
+                                line_id: structured?.[index + 1]?.line?.id,
+                                number: structured?.[index + 1]?.line?.number,
+                                direction: structured?.[index + 1]?.line?.direction,
+                                hex_color: structured?.[index + 1]?.line?.hex_color,
+                                lat_name: structured?.[index + 1]?.line?.lat_name,
+                                cyr_name: structured?.[index + 1]?.line?.cyr_name,
+                                route: structured?.[index + 1]?.route,
+                            },
+                        ];
+                    }
+                } else {
                     return [
                         {
                             id: item?.id,
@@ -35,50 +65,38 @@ const createLineSlice = (set, get) => ({
                             cyr_name: item?.line?.cyr_name,
                             route: item?.route,
                         },
-                        {
-                            id: structured?.[index + 1]?.id,
-                            line_id: structured?.[index + 1]?.line?.id,
-                            number: structured?.[index + 1]?.line?.number,
-                            direction: structured?.[index + 1]?.line?.direction,
-                            hex_color: structured?.[index + 1]?.line?.hex_color,
-                            lat_name: structured?.[index + 1]?.line?.lat_name,
-                            cyr_name: structured?.[index + 1]?.line?.cyr_name,
-                            route: structured?.[index + 1]?.route,
-                        },
                     ];
                 }
-            } else {
-                return [
-                    {
-                        id: item?.id,
-                        line_id: item?.line?.id,
-                        number: item?.line?.number,
-                        direction: item?.line?.direction,
-                        hex_color: item?.line?.hex_color,
-                        lat_name: item?.line?.lat_name,
-                        cyr_name: item?.line?.cyr_name,
-                        route: item?.route,
-                    },
-                ];
-            }
-        });
+            });
 
-        set({ data: mapped.filter((element) => !!element) });
+            set({ data: mapped.filter((element) => !!element), isLoading: false });
+        } catch {
+            set({ error: 'Nije moguće učitati linije. Proverite konekciju.', isLoading: false });
+        }
     },
     fetchDepartures: async (ids, locationId) => {
-        const results = await Promise.all(
-            ids.map((id) => fetch(`${LINES_LOCATIONS_DEPARTURES}/${id}`).then((r) => r.json()))
-        );
-        set({ departures: results, selectedStopId: locationId });
+        try {
+            const results = await Promise.all(
+                ids.map((id) => fetch(`${LINES_LOCATIONS_DEPARTURES}/${id}`).then((r) => r.json()))
+            );
+            set({ departures: results, selectedStopId: locationId });
+        } catch {
+            set({ departures: [], selectedStopId: locationId });
+        }
     },
     clearSelectedStop: () => set({ departures: [], selectedStopId: null }),
     fetchLinesLocations: async (lineId) => {
         const fullUrl = `${LINES_LOCATIONS}/${lineId}`;
+        set({ isLoading: true, error: null });
+        try {
+            const response = await fetch(fullUrl);
+            if (!response.ok) throw new Error(response.status);
+            const printable = await response.json();
 
-        const response = await fetch(fullUrl);
-        const printable = await response.json();
-
-        set({ linesLocations: printable });
+            set({ linesLocations: printable, isLoading: false });
+        } catch {
+            set({ error: 'Nije moguće učitati stanice. Proverite konekciju.', isLoading: false });
+        }
     },
     filterLineById: (id) => {
         const { data, fetchLinesLocations } = get();
@@ -95,15 +113,25 @@ const createLineSlice = (set, get) => ({
         }
     },
     getCurrentLocation: () => {
-        // Request the current position when the component mounts and set it
-        navigator.geolocation.getCurrentPosition((position) => {
-            set({
-                currentLocation: {
-                    lat: position?.coords?.latitude || null,
-                    lng: position?.coords?.longitude || null,
-                },
-            });
-        });
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                set({
+                    currentLocation: {
+                        lat: position?.coords?.latitude || null,
+                        lng: position?.coords?.longitude || null,
+                    },
+                    geoError: null,
+                });
+            },
+            (err) => {
+                const messages = {
+                    1: 'Lokacija nije dozvoljena.',
+                    2: 'Lokacija nije dostupna.',
+                    3: 'Istek vremena za lokaciju.',
+                };
+                set({ geoError: messages[err.code] ?? 'Greška pri određivanju lokacije.' });
+            },
+        );
     },
     getCurrentLocationWithRecenter: () => {
         const { currentLocation, getCurrentLocation } = get();
