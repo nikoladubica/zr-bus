@@ -27,16 +27,12 @@ const Map = () => {
     const fetchLines = useStore((state) => state.fetchLines);
     const filterLineById = useStore((state) => state.filterLineById);
     const getCurrentLocation = useStore((state) => state.getCurrentLocation);
-    const departures = useStore((state) => state.departures);
     const selectedStopId = useStore((state) => state.selectedStopId);
-    const fetchDepartures = useStore((state) => state.fetchDepartures);
-    const clearSelectedStop = useStore((state) => state.clearSelectedStop);
+    const fetchStopDepartures = useStore((state) => state.fetchStopDepartures);
     const isLoading = useStore((state) => state.isLoading);
     const error = useStore((state) => state.error);
     const geoError = useStore((state) => state.geoError);
     const fetchAllLinesLocations = useStore((state) => state.fetchAllLinesLocations);
-    const favourites = useStore((s) => s.favourites);
-    const toggleFavourite = useStore((s) => s.toggleFavourite);
 
     useEffect(() => {
         fetchLines();
@@ -54,8 +50,6 @@ const Map = () => {
         fetchAllLinesLocations();
     }, [fetchAllLinesLocations]);
 
-    const formatTime = (ts) => ts.slice(0, 5);
-
     const uniqueStops = useMemo(() => {
         const byLocation = {};
         linesLocations.forEach((marker) => {
@@ -63,18 +57,13 @@ const Map = () => {
             if (!byLocation[locId]) {
                 byLocation[locId] = { locationId: locId, location: marker.locations, entries: [] };
             }
-            byLocation[locId].entries.push({ id: marker.id, stop_number: marker.stop_number });
+            byLocation[locId].entries.push({ id: marker.id, stop_number: marker.stop_number, lines: marker.lines });
         });
         return Object.values(byLocation).map((s) => ({
             ...s,
             entries: s.entries.sort((a, b) => a.stop_number - b.stop_number),
         }));
     }, [linesLocations]);
-
-    const selectedStop = useMemo(
-        () => uniqueStops.find((s) => s.locationId === selectedStopId) ?? null,
-        [uniqueStops, selectedStopId],
-    );
 
     const closestStation = useMemo(() => {
         const station = getClosestStation(linesLocations, currentLocation);
@@ -125,6 +114,7 @@ const Map = () => {
                 center={mapCenter}
                 zoom={mapZoom}
                 scrollWheelZoom={true}
+                zoomControl={false}
             >
                 <MapChangeView center={mapCenter} zoom={mapZoom} />
                 <TileLayer
@@ -163,10 +153,7 @@ const Map = () => {
                                             }
                                     }
                                     eventHandlers={{
-                                        click: () => fetchDepartures(
-                                            stop.entries.map((e) => e.id),
-                                            stop.locationId,
-                                        ),
+                                        click: () => fetchStopDepartures(stop.locationId),
                                     }}
                                 />
                             );
@@ -234,59 +221,6 @@ const Map = () => {
                 </div>
             )}
 
-            {selectedStop && (
-                <div className="absolute bottom-4 left-4 z-[1000] w-72 rounded-2xl backdrop-blur-xl dark:bg-black/60 bg-white/80 dark:border-white/15 border-black/10 border shadow-2xl p-4">
-                    <div className="flex items-start justify-between gap-3">
-                        <div>
-                            <p className="font-semibold dark:text-white text-gray-900 text-sm leading-snug">
-                                {script === 'latin' ? selectedStop.location?.lat_name : selectedStop.location?.cyr_name}
-                            </p>
-                            <p className="text-xs dark:text-white/40 text-gray-500 mt-0.5 text-left">
-                                Stanica {selectedStop.entries.map((e) => e.stop_number).join(' / ')}
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-1 shrink-0 mt-0.5">
-                            <button
-                                onClick={() => toggleFavourite(selectedStop.locationId)}
-                                className="text-lg leading-none transition-colors"
-                                aria-label={favourites.includes(selectedStop.locationId) ? 'Ukloni iz omiljenih' : 'Dodaj u omiljene'}
-                            >
-                                <span className={favourites.includes(selectedStop.locationId) ? 'text-yellow-400' : 'dark:text-white/20 text-gray-300'}>
-                                    ★
-                                </span>
-                            </button>
-                            <button
-                                onClick={clearSelectedStop}
-                                className="dark:text-white/30 dark:hover:text-white/70 text-gray-400 hover:text-gray-700 transition-colors text-base leading-none shrink-0"
-                            >
-                                ✕
-                            </button>
-                        </div>
-                    </div>
-                    {departures.some((g) => g.length > 0) && (
-                        <>
-                            <div className="my-3 border-t dark:border-white/10 border-black/10" />
-                            {departures.map((group, groupIndex) => (
-                                <div key={groupIndex}>
-                                    {groupIndex > 0 && (
-                                        <div className="my-2 border-t dark:border-white/10 border-black/10" />
-                                    )}
-                                    <div className="flex flex-wrap gap-1.5">
-                                        {group.map((dep) => (
-                                            <span
-                                                key={dep.id}
-                                                className="text-xs dark:bg-white/10 dark:border-white/10 dark:text-white/80 bg-black/5 border-black/10 border px-2 py-1 rounded-lg text-gray-700"
-                                            >
-                                                {formatTime(dep.departure)}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                        </>
-                    )}
-                </div>
-            )}
         </div>
     );
 };

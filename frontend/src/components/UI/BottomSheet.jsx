@@ -1,14 +1,36 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 
-const SNAP = { peek: 74, half: 37, full: 0 };
 const SHEET_HEIGHT_VH = 92;
 
-const BottomSheet = ({ children, header, snapTo = 'peek', onSnapChange }) => {
-    const [translateVh, setTranslateVh] = useState(SNAP[snapTo] ?? SNAP.peek);
+// Computes the translateY value (in vh) at which the sheet's top edge sits at topOffsetPx.
+const computeFullSnap = (topOffsetPx) => {
+    if (!topOffsetPx || !window.innerHeight) return 0;
+    return Math.max(0, Math.ceil((topOffsetPx / window.innerHeight) * 100) - (100 - SHEET_HEIGHT_VH));
+};
+
+const BottomSheet = ({ children, header, snapTo = 'peek', onSnapChange, topOffset = 0 }) => {
+    const [fullSnap, setFullSnap] = useState(() => computeFullSnap(topOffset));
+
+    // Recompute when topOffset resolves (after header measurement) or on resize.
+    useEffect(() => {
+        const update = () => setFullSnap(computeFullSnap(topOffset));
+        update();
+        window.addEventListener('resize', update);
+        return () => window.removeEventListener('resize', update);
+    }, [topOffset]);
+
+    const snaps = useMemo(
+        () => ({ peek: 74, half: 37, full: fullSnap }),
+        [fullSnap],
+    );
+
+    const [translateVh, setTranslateVh] = useState(snaps[snapTo] ?? snaps.peek);
     const [isDragging, setIsDragging] = useState(false);
     const touchStartY = useRef(null);
     const startTranslate = useRef(null);
-    const translateRef = useRef(SNAP[snapTo] ?? SNAP.peek);
+    const translateRef = useRef(snaps[snapTo] ?? snaps.peek);
+    const snapsRef = useRef(snaps);
+    snapsRef.current = snaps;
 
     const setTranslate = (val) => {
         translateRef.current = val;
@@ -16,14 +38,14 @@ const BottomSheet = ({ children, header, snapTo = 'peek', onSnapChange }) => {
     };
 
     useEffect(() => {
-        if (snapTo && SNAP[snapTo] !== undefined) {
-            setTranslate(SNAP[snapTo]);
+        if (snapTo && snaps[snapTo] !== undefined) {
+            setTranslate(snaps[snapTo]);
         }
-    }, [snapTo]);
+    }, [snapTo, snaps]);
 
     const snapToNearest = () => {
         const current = translateRef.current;
-        const [name, value] = Object.entries(SNAP).reduce((best, curr) =>
+        const [name, value] = Object.entries(snapsRef.current).reduce((best, curr) =>
             Math.abs(curr[1] - current) < Math.abs(best[1] - current) ? curr : best
         );
         setTranslate(value);
@@ -39,7 +61,7 @@ const BottomSheet = ({ children, header, snapTo = 'peek', onSnapChange }) => {
     const onTouchMove = (e) => {
         const dy = e.touches[0].clientY - touchStartY.current;
         const delta = (dy / window.innerHeight) * 100;
-        const clamped = Math.max(0, Math.min(SNAP.peek, startTranslate.current + delta));
+        const clamped = Math.max(snapsRef.current.full, Math.min(snapsRef.current.peek, startTranslate.current + delta));
         setTranslate(clamped);
     };
 
@@ -85,7 +107,10 @@ const BottomSheet = ({ children, header, snapTo = 'peek', onSnapChange }) => {
 
                 <div
                     className="pointer-events-auto overflow-y-auto overscroll-contain"
-                    style={{ height: 'calc(100% - 2.5rem)' }}
+                    style={{
+                        height: `calc(${SHEET_HEIGHT_VH - translateVh}vh)`,
+                        transition: isDragging ? 'none' : 'height 0.3s cubic-bezier(0.32, 0.72, 0, 1)',
+                    }}
                 >
                     {children}
                 </div>

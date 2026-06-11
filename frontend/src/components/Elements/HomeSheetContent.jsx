@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import useStore from '../../store/client/useStore';
 import { useScript } from '../../context/ScriptContext.jsx';
+import StopDetailView from './StopDetailView';
 import { getNearbyStops } from '../../utils/helpers';
 import { nextDepartureMinutes, countdownLabel, followingTimes } from '../../utils/countdown';
 import MapLineSwitcher from './Map/MapLineSwitcher';
@@ -17,6 +18,7 @@ const HomeSheetContent = () => {
     const toggleFavourite = useStore((s) => s.toggleFavourite);
     const fetchFavouriteDepartures = useStore((s) => s.fetchFavouriteDepartures);
     const favouriteDepartures = useStore((s) => s.favouriteDepartures);
+    const selectedStopId = useStore((s) => s.selectedStopId);
 
     const [now, setNow] = useState(() => new Date());
 
@@ -67,6 +69,10 @@ const HomeSheetContent = () => {
             })
             .map((e) => ({ number: e.lines.number, color: e.lines.hex_color }));
     };
+
+    if (selectedStopId !== null) {
+        return <StopDetailView />;
+    }
 
     return (
         <div className="flex flex-col gap-5 p-4 pb-8">

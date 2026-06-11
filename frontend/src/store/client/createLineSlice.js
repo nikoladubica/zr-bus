@@ -27,6 +27,7 @@ const createLineSlice = (set, get) => ({
     },
     mapCenter: position || { lat: null, lng: null },
     mapZoom: 13,
+    sheetSnap: 'peek',
     allLinesLocations: [],
     closestStopInfo: null,
     closestStopDepartures: [],
@@ -54,6 +55,7 @@ const createLineSlice = (set, get) => ({
     },
     isFavourite: (locationId) => get().favourites.includes(locationId),
 
+    snapSheetTo: (snap) => set({ sheetSnap: snap }),
     updateActiveLine: (newId) => set({ activeLine: newId }),
     resetActiveLine: () => set({ activeLine: 1 }),
 
@@ -174,7 +176,23 @@ const createLineSlice = (set, get) => ({
             set({ departures: [], selectedStopId: locationId });
         }
     },
-    clearSelectedStop: () => set({ departures: [], selectedStopId: null }),
+    fetchStopDepartures: async (locationId) => {
+        const { allLinesLocations } = get();
+        const entries = allLinesLocations.filter((e) => e.locations?.id === locationId);
+        if (!entries.length) return;
+        set({ selectedStopId: locationId, departures: [], sheetSnap: 'half' });
+        try {
+            const results = await Promise.all(
+                entries.map((e) =>
+                    fetch(`${LINES_LOCATIONS_DEPARTURES}/${e.id}`).then((r) => r.json()),
+                ),
+            );
+            set({ departures: results });
+        } catch {
+            set({ departures: [] });
+        }
+    },
+    clearSelectedStop: () => set({ departures: [], selectedStopId: null, sheetSnap: 'peek' }),
     fetchLinesLocations: async (lineId) => {
         const fullUrl = `${LINES_LOCATIONS}/${lineId}`;
         set({ isLoading: true, error: null });
