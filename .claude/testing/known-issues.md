@@ -87,3 +87,12 @@ Issues spotted during codebase analysis but not yet in scope of any ticket. Agen
 - File: `frontend/src/assets/icons/locate/locate-white.svg`
 - The locate icon is a white SVG, making it invisible against the light theme header background.
 - Not covered by any ticket yet.
+
+---
+
+## 2026-06-10 — TICKET-012 implementation scan
+
+**[API-001] `GET /lines-locations` returns relation as `entry.lines` (plural), not `entry.line`**
+- File: `backend/src/lines-locations/lines-locations.entity.ts` — `@ManyToOne` property is named `lines`
+- Any frontend code accessing the joined line must use `entry.lines.number`, `entry.lines.hex_color`, etc. Fixed in `HomeSheetContent.jsx`; other consumers of `linesLocations` (Map.jsx) use the `line_id`-mapped `data` structure so they are unaffected.
+- Resolved in TICKET-012.

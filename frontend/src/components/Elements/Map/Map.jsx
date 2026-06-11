@@ -34,6 +34,9 @@ const Map = () => {
     const isLoading = useStore((state) => state.isLoading);
     const error = useStore((state) => state.error);
     const geoError = useStore((state) => state.geoError);
+    const fetchAllLinesLocations = useStore((state) => state.fetchAllLinesLocations);
+    const favourites = useStore((s) => s.favourites);
+    const toggleFavourite = useStore((s) => s.toggleFavourite);
 
     useEffect(() => {
         fetchLines();
@@ -46,6 +49,10 @@ const Map = () => {
     useEffect(() => {
         filterLineById(1);
     }, [data, filterLineById]);
+
+    useEffect(() => {
+        fetchAllLinesLocations();
+    }, [fetchAllLinesLocations]);
 
     const formatTime = (ts) => ts.slice(0, 5);
 
@@ -234,16 +241,27 @@ const Map = () => {
                             <p className="font-semibold dark:text-white text-gray-900 text-sm leading-snug">
                                 {script === 'latin' ? selectedStop.location?.lat_name : selectedStop.location?.cyr_name}
                             </p>
-                            <p className="text-xs dark:text-white/40 text-gray-500 mt-0.5">
+                            <p className="text-xs dark:text-white/40 text-gray-500 mt-0.5 text-left">
                                 Stanica {selectedStop.entries.map((e) => e.stop_number).join(' / ')}
                             </p>
                         </div>
-                        <button
-                            onClick={clearSelectedStop}
-                            className="dark:text-white/30 dark:hover:text-white/70 text-gray-400 hover:text-gray-700 transition-colors text-base leading-none mt-0.5 shrink-0"
-                        >
-                            ✕
-                        </button>
+                        <div className="flex items-center gap-1 shrink-0 mt-0.5">
+                            <button
+                                onClick={() => toggleFavourite(selectedStop.locationId)}
+                                className="text-lg leading-none transition-colors"
+                                aria-label={favourites.includes(selectedStop.locationId) ? 'Ukloni iz omiljenih' : 'Dodaj u omiljene'}
+                            >
+                                <span className={favourites.includes(selectedStop.locationId) ? 'text-yellow-400' : 'dark:text-white/20 text-gray-300'}>
+                                    ★
+                                </span>
+                            </button>
+                            <button
+                                onClick={clearSelectedStop}
+                                className="dark:text-white/30 dark:hover:text-white/70 text-gray-400 hover:text-gray-700 transition-colors text-base leading-none shrink-0"
+                            >
+                                ✕
+                            </button>
+                        </div>
                     </div>
                     {departures.some((g) => g.length > 0) && (
                         <>

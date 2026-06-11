@@ -1,5 +1,15 @@
 import { LINES_ROUTES, LINES_LOCATIONS, LINES_LOCATIONS_DEPARTURES } from '../../utils/api';
 import { position } from '../../utils/enums';
+import { getClosestStop } from '../../utils/helpers';
+
+const loadFavourites = () => {
+    try {
+        const parsed = JSON.parse(localStorage.getItem('favourites'));
+        return Array.isArray(parsed) ? parsed : [];
+    } catch {
+        return [];
+    }
+};
 
 const createLineSlice = (set, get) => ({
     activeLine: 1,
@@ -17,9 +27,89 @@ const createLineSlice = (set, get) => ({
     },
     mapCenter: position || { lat: null, lng: null },
     mapZoom: 13,
+    allLinesLocations: [],
+    closestStopInfo: null,
+    closestStopDepartures: [],
+    favouriteDepartures: {},
+    favourites: loadFavourites(),
+
+    addFavourite: (locationId) => {
+        set((state) => {
+            if (state.favourites.includes(locationId)) return {};
+            const next = [...state.favourites, locationId];
+            localStorage.setItem('favourites', JSON.stringify(next));
+            return { favourites: next };
+        });
+    },
+    removeFavourite: (locationId) => {
+        set((state) => {
+            const next = state.favourites.filter((id) => id !== locationId);
+            localStorage.setItem('favourites', JSON.stringify(next));
+            return { favourites: next };
+        });
+    },
+    toggleFavourite: (locationId) => {
+        const { addFavourite, removeFavourite, isFavourite } = get();
+        isFavourite(locationId) ? removeFavourite(locationId) : addFavourite(locationId);
+    },
+    isFavourite: (locationId) => get().favourites.includes(locationId),
 
     updateActiveLine: (newId) => set({ activeLine: newId }),
     resetActiveLine: () => set({ activeLine: 1 }),
+
+    fetchAllLinesLocations: async () => {
+        try {
+            const response = await fetch(LINES_LOCATIONS);
+            if (!response.ok) throw new Error(response.status);
+            const data = await response.json();
+            set({ allLinesLocations: data });
+        } catch {
+            // Silent failure — home sheet degrades gracefully
+        }
+    },
+
+    fetchClosestStopDepartures: async () => {
+        const { linesLocations, currentLocation } = get();
+        const closest = getClosestStop(linesLocations, currentLocation);
+        if (!closest) return;
+
+        set({ closestStopInfo: closest });
+
+        try {
+            const results = await Promise.all(
+                closest.entries.map((entry) =>
+                    fetch(`${LINES_LOCATIONS_DEPARTURES}/${entry.id}`).then((r) => r.json()),
+                ),
+            );
+            set({ closestStopDepartures: results });
+        } catch {
+            set({ closestStopDepartures: [] });
+        }
+    },
+
+    fetchFavouriteDepartures: async () => {
+        const { allLinesLocations, favourites } = get();
+        if (!favourites.length || !allLinesLocations.length) return;
+
+        const results = {};
+        await Promise.all(
+            favourites.map(async (locationId) => {
+                const entries = allLinesLocations.filter((e) => e.locations?.id === locationId);
+                if (!entries.length) return;
+                try {
+                    const deps = await Promise.all(
+                        entries.map((e) =>
+                            fetch(`${LINES_LOCATIONS_DEPARTURES}/${e.id}`).then((r) => r.json()),
+                        ),
+                    );
+                    results[locationId] = deps;
+                } catch {
+                    results[locationId] = [];
+                }
+            }),
+        );
+        set({ favouriteDepartures: results });
+    },
     fetchLines: async () => {
         set({ isLoading: true, error: null });
         try {
@@ -94,6 +184,10 @@ const createLineSlice = (set, get) => ({
             const printable = await response.json();
 
             set({ linesLocations: printable, isLoading: false });
+            const { currentLocation, fetchClosestStopDepartures } = get();
+            if (currentLocation?.lat && currentLocation?.lng) {
+                fetchClosestStopDepartures();
+            }
         } catch {
             set({ error: 'Nije moguće učitati stanice. Proverite konekciju.', isLoading: false });
         }
@@ -122,6 +216,10 @@ const createLineSlice = (set, get) => ({
                     },
                     geoError: null,
                 });
+                const { linesLocations, fetchClosestStopDepartures } = get();
+                if (linesLocations.length > 0) {
+                    fetchClosestStopDepartures();
+                }
             },
             (err) => {
                 const messages = {

@@ -5,7 +5,9 @@ import { useScript } from '../../../context/ScriptContext.jsx';
 import { useTheme } from '../../../context/ThemeContext.jsx';
 
 import logo from '../../../assets/zrbus_logo.svg';
-import locate from '../../../assets/icons/locate/locate-white.svg';
+import logoBlack from '../../../assets/zrbus_logo-black.svg';
+import locateWhite from '../../../assets/icons/locate/locate-white.svg';
+import locateBlack from '../../../assets/icons/locate/locate-black.svg';
 
 const Header = () => {
     let location = useLocation();
@@ -27,7 +29,7 @@ const Header = () => {
     return (
         <div className="flex items-center justify-between px-5 h-23">
             <NavLink to="/">
-                <img src={logo} alt="ZRBus logo" height={36} width={100} />
+                <img src={theme === 'dark' ? logo : logoBlack} alt="ZRBus logo" height={36} width={100} />
             </NavLink>
 
             <div className="flex items-center gap-1">
@@ -47,10 +49,10 @@ const Header = () => {
 
                 {location.pathname === '/' && (
                     <button
-                        className="w-9 h-9 flex items-center justify-center rounded-xl dark:hover:bg-white/10 hover:bg-black/5 transition-colors"
+                        className="relative w-9 h-9 flex items-center justify-center rounded-xl dark:hover:bg-white/10 hover:bg-black/5 transition-colors"
                         onClick={locateMeHandler}
                     >
-                        <img src={locate} alt="Locate" height={16} width={16} />
+                        <img src={theme === 'dark' ? locateWhite : locateBlack} className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2' alt="Locate" height={16} width={16} />
                     </button>
                 )}
             </div>

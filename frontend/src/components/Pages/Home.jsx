@@ -5,9 +5,9 @@ import { useScript } from '../../context/ScriptContext.jsx';
 import useStore from '../../store/client/useStore';
 
 import Header from '../Elements/Header/Header';
-import MapLineSwitcher from '../Elements/Map/MapLineSwitcher';
 import Map from '../Elements/Map/Map';
 import BottomSheet from '../UI/BottomSheet';
+import HomeSheetContent from '../Elements/HomeSheetContent';
 
 const Home = () => {
     const { theme } = useTheme();
@@ -30,9 +30,7 @@ const Home = () => {
                 snapTo={sheetSnap}
                 onSnapChange={setSheetSnap}
             >
-                <div className="p-4 flex flex-col gap-3">
-                    <MapLineSwitcher />
-                </div>
+                <HomeSheetContent />
             </BottomSheet>
 
             <div className="flex-1 relative h-full">
