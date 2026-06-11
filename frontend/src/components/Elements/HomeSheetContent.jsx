@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import useStore from '../../store/client/useStore';
 import { useScript } from '../../context/ScriptContext.jsx';
 import StopDetailView from './StopDetailView';
+import SearchView from './SearchView';
 import { getNearbyStops } from '../../utils/helpers';
 import { nextDepartureMinutes, countdownLabel, followingTimes } from '../../utils/countdown';
 import MapLineSwitcher from './Map/MapLineSwitcher';
@@ -9,6 +10,9 @@ import MapLineSwitcher from './Map/MapLineSwitcher';
 const HomeSheetContent = () => {
     const { script } = useScript();
     const isCyrillic = script === 'cyrillic';
+
+    const isSearchOpen = useStore((s) => s.isSearchOpen);
+    const openSearch = useStore((s) => s.openSearch);
 
     const allLinesLocations = useStore((s) => s.allLinesLocations);
     const currentLocation = useStore((s) => s.currentLocation);
@@ -70,12 +74,28 @@ const HomeSheetContent = () => {
             .map((e) => ({ number: e.lines.number, color: e.lines.hex_color }));
     };
 
+    if (isSearchOpen) {
+        return <SearchView />;
+    }
+
     if (selectedStopId !== null) {
         return <StopDetailView />;
     }
 
     return (
         <div className="flex flex-col gap-5 p-4 pb-8">
+
+            {/* ── SEARCH PILL ── */}
+            <button
+                onClick={openSearch}
+                className="flex items-center gap-3 w-full px-4 py-3 rounded-2xl dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border dark:hover:bg-white/8 hover:bg-black/8 transition-colors text-left"
+                aria-label={isCyrillic ? 'Отвори претрагу' : 'Otvori pretragu'}
+            >
+                <span className="text-base dark:text-white/30 text-gray-400">⌕</span>
+                <span className="text-sm dark:text-white/40 text-gray-400 flex-1">
+                    {isCyrillic ? 'Претражи станицу / линију' : 'Pretraži stanicu / liniju'}
+                </span>
+            </button>
 
             {/* ── NEXT BUS ── */}
             {closestStopInfo && (

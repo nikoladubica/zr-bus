@@ -79,6 +79,36 @@ export const getClosestStop = (allLinesLocations, currentLocation) => {
     return closest;
 };
 
+const CYR_TO_LAT = {
+    'А':'A','Б':'B','В':'V','Г':'G','Д':'D','Ђ':'Đ','Е':'E','Ж':'Ž','З':'Z',
+    'И':'I','Ј':'J','К':'K','Л':'L','Љ':'Lj','М':'M','Н':'N','Њ':'Nj',
+    'О':'O','П':'P','Р':'R','С':'S','Т':'T','Ћ':'Ć','У':'U','Ф':'F','Х':'H',
+    'Ц':'C','Ч':'Č','Џ':'Dž','Ш':'Š',
+    'а':'a','б':'b','в':'v','г':'g','д':'d','ђ':'đ','е':'e','ж':'ž','з':'z',
+    'и':'i','ј':'j','к':'k','л':'l','љ':'lj','м':'m','н':'n','њ':'nj',
+    'о':'o','п':'p','р':'r','с':'s','т':'t','ћ':'ć','у':'u','ф':'f','х':'h',
+    'ц':'c','ч':'č','џ':'dž','ш':'š',
+};
+
+export const normalizeForSearch = (str) => {
+    if (!str) return '';
+    const transliterated = str.split('').map((ch) => CYR_TO_LAT[ch] ?? ch).join('');
+    return transliterated.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+};
+
+export const getUniqueStops = (allLinesLocations) => {
+    const byLocation = {};
+    (allLinesLocations || []).forEach((entry) => {
+        const locId = entry?.locations?.id;
+        if (!locId) return;
+        if (!byLocation[locId]) {
+            byLocation[locId] = { locationId: locId, location: entry.locations, entries: [] };
+        }
+        byLocation[locId].entries.push(entry);
+    });
+    return Object.values(byLocation);
+};
+
 // Returns all unique stops sorted by distance, with distance in metres.
 export const getNearbyStops = (allLinesLocations, currentLocation, limit = 10) => {
     if (!currentLocation?.lat || !currentLocation?.lng || !allLinesLocations?.length) return [];

@@ -2,6 +2,13 @@ import { LINES_ROUTES, LINES_LOCATIONS, LINES_LOCATIONS_DEPARTURES } from '../..
 import { position } from '../../utils/enums';
 import { getClosestStop } from '../../utils/helpers';
 
+const loadRecentSearches = () => {
+    try {
+        const parsed = JSON.parse(localStorage.getItem('recentSearches'));
+        return Array.isArray(parsed) ? parsed : [];
+    } catch { return []; }
+};
+
 const loadFavourites = () => {
     try {
         const parsed = JSON.parse(localStorage.getItem('favourites'));
@@ -33,6 +40,9 @@ const createLineSlice = (set, get) => ({
     closestStopDepartures: [],
     favouriteDepartures: {},
     favourites: loadFavourites(),
+    isSearchOpen: false,
+    searchQuery: '',
+    recentSearches: loadRecentSearches(),
 
     addFavourite: (locationId) => {
         set((state) => {
@@ -54,6 +64,34 @@ const createLineSlice = (set, get) => ({
         isFavourite(locationId) ? removeFavourite(locationId) : addFavourite(locationId);
     },
     isFavourite: (locationId) => get().favourites.includes(locationId),
+
+    openSearch: () => set({ isSearchOpen: true, sheetSnap: 'full' }),
+    closeSearch: () => set({ isSearchOpen: false, searchQuery: '' }),
+    setSearchQuery: (q) => set({ searchQuery: q }),
+
+    addRecentSearch: (item) => set((state) => {
+        const next = [item, ...state.recentSearches.filter(
+            (r) => !(r.type === item.type && r.id === item.id)
+        )].slice(0, 5);
+        localStorage.setItem('recentSearches', JSON.stringify(next));
+        return { recentSearches: next };
+    }),
+
+    selectStopFromSearch: (locationId, lat, lng) => {
+        const { fetchStopDepartures, closeSearch, addRecentSearch } = get();
+        addRecentSearch({ type: 'stop', id: locationId });
+        set({ mapCenter: { lat, lng }, mapZoom: 16 });
+        fetchStopDepartures(locationId);
+        closeSearch();
+    },
+
+    selectLineFromSearch: (lineId) => {
+        const { filterLineById, closeSearch, addRecentSearch } = get();
+        addRecentSearch({ type: 'line', id: lineId });
+        filterLineById(lineId);
+        closeSearch();
+        set({ sheetSnap: 'peek' });
+    },
 
     snapSheetTo: (snap) => set({ sheetSnap: snap }),
     updateActiveLine: (newId) => set({ activeLine: newId }),
