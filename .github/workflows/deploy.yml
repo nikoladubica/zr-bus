@@ -55,36 +55,6 @@ jobs:
       - name: Check Frontend Build
         run: ls -la frontend/dist
 
-      # ── Deploy Backend ────────────────────────────────────────────────────────
-
-      - name: Show secret fingerprint
-        run: |
-            echo "$SSH_PRIVATE_KEY" > key
-            chmod 600 key
-            ssh-keygen -lf key
-        env:
-            SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Sync Backend to Server
-        uses: easingthemes/ssh-deploy@v2.1.5
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SOURCE: "backend-deploy/"
-          ARGS: "-rlgoDzv --delete"
-          REMOTE_HOST: ${{ secrets.VPS_HOST }}
-          REMOTE_USER: ${{ secrets.VPS_USER }}
-          TARGET: ${{ secrets.BACKEND_PATH }}
-
-      - name: Install Production Dependencies & Restart Backend
-        uses: appleboy/ssh-action@v0.1.6
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd ${{ secrets.BACKEND_PATH }}
-            npm ci --omit=dev --legacy-peer-deps
-            pm2 restart ${{ secrets.PM2_APP_NAME }} || pm2 start dist/main.js --name ${{ secrets.PM2_APP_NAME }}
 
       # ── Deploy Frontend ───────────────────────────────────────────────────────
 
