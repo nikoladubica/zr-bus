@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router';
 import Home from './components/Pages/Home';
 import About from './components/Pages/About';
+import Timetable from './components/Pages/Timetable';
 import './App.css';
 
 const App = () => {
@@ -9,6 +10,7 @@ const App = () => {
             <Routes>
                 <Route index element={<Home />} />
                 <Route path="o-nama" element={<About />} />
+                <Route path="red-voznje/:lineId?" element={<Timetable />} />
             </Routes>
         </div>
     );

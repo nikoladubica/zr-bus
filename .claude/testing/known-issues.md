@@ -96,3 +96,11 @@ Issues spotted during codebase analysis but not yet in scope of any ticket. Agen
 - File: `backend/src/lines-locations/lines-locations.entity.ts` — `@ManyToOne` property is named `lines`
 - Any frontend code accessing the joined line must use `entry.lines.number`, `entry.lines.hex_color`, etc. Fixed in `HomeSheetContent.jsx`; other consumers of `linesLocations` (Map.jsx) use the `line_id`-mapped `data` structure so they are unaffected.
 - Resolved in TICKET-012.
+
+---
+
+## 2026-06-11 — TICKET-015 implementation scan
+
+**[TIMETABLE-001] Timetable fetch has no try/catch — unhandled rejection on network error**
+- File: `frontend/src/components/Pages/Timetable.jsx` — the `load()` async function inside `useEffect` checks `resp.ok` for HTTP errors but has no outer try/catch, so a network-level failure throws an unhandled promise rejection and leaves `isLoading` true forever.
+- Not covered by any ticket yet (error-handling groundwork is TICKET-007).

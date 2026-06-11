@@ -167,11 +167,12 @@ const HomeSheetContent = () => {
                                         ★
                                     </span>
                                 </button>
-                                <span className="text-sm dark:text-white text-gray-900 truncate flex-1 text-left">
-                                    {stopName(stop.location)}
-                                </span>
-                                <div className="flex items-center gap-2 shrink-0">
-                                    {linesForEntries(stop.entries).map((l) => (
+                                <div className="flex flex-col items-start justify-start w-full">
+                                    <span className="text-sm dark:text-white text-gray-900 truncate flex-1 text-left">
+                                        {stopName(stop.location)}
+                                    </span>
+                                    <div className="flex items-center gap-2">
+                                        {linesForEntries(stop.entries).map((l) => (
                                         <span
                                             key={l.number}
                                             className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white shrink-0"
@@ -180,6 +181,9 @@ const HomeSheetContent = () => {
                                             {l.number}
                                         </span>
                                     ))}
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2 shrink-0">
                                     <span className="text-xs dark:text-white/40 text-gray-400">
                                         {formatDist(stop.distance)}
                                     </span>
