@@ -28,9 +28,9 @@ const Header = () => {
 
     return (
         <div className="flex items-center justify-between px-5 h-23">
-            <NavLink to="/">
+            {/* <NavLink to="/">
                 <img src={theme === 'dark' ? logo : logoBlack} alt="ZRBus logo" height={36} width={100} />
-            </NavLink>
+            </NavLink> */}
 
             <div className="flex items-center gap-1">
                 <div className="relative">
