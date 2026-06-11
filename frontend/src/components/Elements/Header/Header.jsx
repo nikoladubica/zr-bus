@@ -1,18 +1,18 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useLocation, NavLink } from 'react-router';
 import useStore from '../../../store/client/useStore';
-import { useScript } from '../../../context/ScriptContext.jsx';
 import { useTheme } from '../../../context/ThemeContext.jsx';
 
+import SettingsPopover from './SettingsPopover';
 import logo from '../../../assets/zrbus_logo.svg';
 import logoBlack from '../../../assets/zrbus_logo-black.svg';
 import locateWhite from '../../../assets/icons/locate/locate-white.svg';
 import locateBlack from '../../../assets/icons/locate/locate-black.svg';
 
 const Header = () => {
-    let location = useLocation();
-    const { script, toggleScript } = useScript();
-    const { theme, toggleTheme } = useTheme();
+    const location = useLocation();
+    const { theme } = useTheme();
+    const [settingsOpen, setSettingsOpen] = useState(false);
 
     const getCurrentLocationWithRecenter = useStore(
         (state) => state.getCurrentLocationWithRecenter,
@@ -33,19 +33,18 @@ const Header = () => {
             </NavLink>
 
             <div className="flex items-center gap-1">
-                <button
-                    className="w-9 h-9 flex items-center justify-center rounded-xl dark:hover:bg-white/10 hover:bg-black/5 transition-colors dark:text-white text-gray-800"
-                    onClick={toggleTheme}
-                >
-                    {theme === 'dark' ? '☀' : '☾'}
-                </button>
+                <div className="relative">
+                    <button
+                        className="w-9 h-9 flex items-center justify-center rounded-xl dark:hover:bg-white/10 hover:bg-black/5 transition-colors dark:text-white text-gray-800"
+                        onClick={() => setSettingsOpen((o) => !o)}
+                    >
+                        ⚙
+                    </button>
 
-                <button
-                    className="h-9 px-2.5 flex items-center justify-center rounded-xl dark:hover:bg-white/10 hover:bg-black/5 transition-colors dark:text-white text-gray-800 text-sm font-medium"
-                    onClick={toggleScript}
-                >
-                    {script === 'latin' ? 'Ћир' : 'Lat'}
-                </button>
+                    {settingsOpen && (
+                        <SettingsPopover onClose={() => setSettingsOpen(false)} />
+                    )}
+                </div>
 
                 {location.pathname === '/' && (
                     <button

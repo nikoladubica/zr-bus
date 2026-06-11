@@ -73,10 +73,7 @@ Issues spotted during codebase analysis but not yet in scope of any ticket. Agen
 - `{/* TODO: add data source credits */}` inside the "Izvori podataka" card — no ticket covers this yet.
 - Not covered by any ticket yet.
 
-**[HOME-001] Hardcoded mobile MapLineSwitcher offset in Home.jsx**
-- File: `frontend/src/components/Pages/Home.jsx`
-- The mobile overlay for `<MapLineSwitcher />` uses `top-[88px]` — a hardcoded offset that assumes a fixed header height. Will break if the header height changes.
-- Interim state; will be resolved when TICKET-016 (header/settings redesign) replaces the Header overlay.
+**[HOME-001] ~~Hardcoded mobile MapLineSwitcher offset in Home.jsx~~** ✅ Resolved in TICKET-016 — confirmed the `top-[88px]` offset was never present; `Home.jsx` uses a dynamic `headerRef`/`headerHeight` measurement throughout.
 
 **[ASSET-001] `arrow-right-white.svg` is now an orphaned asset**
 - File: `frontend/src/assets/icons/arrow/arrow-right-white.svg`
