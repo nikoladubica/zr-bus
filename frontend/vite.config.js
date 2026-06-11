@@ -3,6 +3,9 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { VitePWA } from "vite-plugin-pwa";
 
+const apiUrl = process.env.VITE_API_URL ?? "http://localhost:3000";
+const apiOrigin = new URL(apiUrl).origin.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 export default defineConfig({
   plugins: [
     react(),
@@ -43,7 +46,7 @@ export default defineConfig({
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff,woff2}"],
         runtimeCaching: [
           {
-            urlPattern: /^http:\/\/localhost:3000\/lines/,
+            urlPattern: new RegExp(`^${apiOrigin}/lines`),
             handler: "StaleWhileRevalidate",
             options: {
               cacheName: "api-data",

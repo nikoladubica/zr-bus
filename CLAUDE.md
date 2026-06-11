@@ -87,8 +87,15 @@ React-Leaflet 5. Multiple tile options in `utils/enums.js` (Grayscale, Light, OS
 - `context/ScriptContext.js` — stub, Latin/Cyrillic switcher not wired up
 - `Footer.jsx` — component exists but commented out in `App.jsx`
 - Departure schedules — entity and endpoint exist but UI not built
-- CORS — currently `origin: '*'`, marked for tightening
 - Debug `console.log` in `Map.jsx` around line 45–48
+
+## Deployment — Required Environment Variables
+
+Before building or deploying, copy each package's `.env.example` to `.env` and fill in real values. **Never commit `.env` files.**
+
+**`backend/.env`** — `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, `DB_DATABASE`, `NODE_ENV=production`, `ALLOWED_ORIGIN` (frontend origin, e.g. `https://zrbus.ddns.net`), `PORT` (optional, defaults to 3000).
+
+**`frontend/.env`** — `VITE_API_URL` (backend origin, e.g. `https://api.zrbus.ddns.net`). Set at Vite build time; drives both the API base URL and the PWA service-worker cache pattern.
 
 ## Coding Conventions
 

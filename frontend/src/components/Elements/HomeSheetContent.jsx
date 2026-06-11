@@ -23,6 +23,7 @@ const HomeSheetContent = () => {
     const fetchFavouriteDepartures = useStore((s) => s.fetchFavouriteDepartures);
     const favouriteDepartures = useStore((s) => s.favouriteDepartures);
     const selectedStopId = useStore((s) => s.selectedStopId);
+    const fetchStopDepartures = useStore((s) => s.fetchStopDepartures);
 
     const [now, setNow] = useState(() => new Date());
 
@@ -157,9 +158,9 @@ const HomeSheetContent = () => {
                     </p>
                     <div className="flex flex-col gap-1">
                         {nearbyStops.map((stop) => (
-                            <div key={stop.locationId} className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border">
+                            <div key={stop.locationId} onClick={() => fetchStopDepartures(stop.locationId)} className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border cursor-pointer dark:hover:bg-white/8 hover:bg-black/8 transition-colors">
                                 <button
-                                    onClick={() => toggleFavourite(stop.locationId)}
+                                    onClick={(e) => { e.stopPropagation(); toggleFavourite(stop.locationId); }}
                                     className="text-base leading-none shrink-0 transition-colors"
                                     aria-label={favourites.includes(stop.locationId) ? 'Ukloni iz omiljenih' : 'Dodaj u omiljene'}
                                 >
