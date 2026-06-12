@@ -3,6 +3,7 @@ import { NavLink } from 'react-router';
 import useStore from '../../store/client/useStore';
 import { useScript } from '../../context/ScriptContext.jsx';
 import { nextDepartureMinutes, countdownLabel } from '../../utils/countdown';
+import { useReminders } from '../../hooks/useReminders';
 
 const DAY_LABELS = {
     latin:    { workday: 'Radni dan', saturday: 'Subota',  sunday: 'Nedelja' },
@@ -85,6 +86,8 @@ const StopDetailView = () => {
         return ['workday', 'saturday', 'sunday'].filter((t) => types.has(t));
     }, [lineGroups]);
 
+    const { schedule, cancel, isScheduled, permDenied } = useReminders();
+
     const isFav = favourites.includes(selectedStopId);
     const stopName = stopLocation
         ? (isCyrillic ? stopLocation.cyr_name : stopLocation.lat_name) || stopLocation.lat_name
@@ -112,6 +115,14 @@ const StopDetailView = () => {
                     <span className={isFav ? 'text-yellow-400' : 'dark:text-white/20 text-gray-300'}>★</span>
                 </button>
             </div>
+
+            {permDenied && (
+                <p className="text-xs text-amber-500/80 px-4 py-2 shrink-0">
+                    {isCyrillic
+                        ? 'Обавештења су блокирана. Омогући их у подешавањима прегледача.'
+                        : 'Obaveštenja su blokirana. Omogući ih u podešavanjima pregledača.'}
+                </p>
+            )}
 
             {/* Day-type tabs */}
             {availableTabs && availableTabs.length > 1 && (
@@ -200,6 +211,36 @@ const StopDetailView = () => {
                                             {followingDeps.length > 4 && ' …'}
                                         </span>
                                     )}
+                                    {(() => {
+                                        const scheduled = isScheduled(line.id, selectedStopId, nextDep.mins);
+                                        return (
+                                            <button
+                                                onClick={() => {
+                                                    if (scheduled) {
+                                                        cancel({ lineId: line.id, stopId: selectedStopId, depMins: nextDep.mins });
+                                                    } else {
+                                                        schedule({
+                                                            lineId: line.id,
+                                                            stopId: selectedStopId,
+                                                            lineNumber: line.number,
+                                                            dest,
+                                                            depMins: nextDep.mins,
+                                                            isCyrillic,
+                                                        });
+                                                    }
+                                                }}
+                                                className={`ml-auto text-xs px-2 py-1 rounded-lg border transition-colors ${
+                                                    scheduled
+                                                        ? 'dark:bg-white/10 bg-black/8 dark:border-white/20 border-black/15 dark:text-white/80 text-gray-700'
+                                                        : 'dark:border-white/10 border-black/10 dark:text-white/40 text-gray-400 dark:hover:bg-white/5 hover:bg-black/5'
+                                                }`}
+                                            >
+                                                {scheduled
+                                                    ? (isCyrillic ? 'Откажи подсетник' : 'Otkaži podsetnik')
+                                                    : (isCyrillic ? 'Подсети ме' : 'Podseti me')}
+                                            </button>
+                                        );
+                                    })()}
                                 </div>
                             ) : (
                                 <div className="rounded-xl dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border px-3 py-2 text-xs dark:text-white/30 text-gray-400">

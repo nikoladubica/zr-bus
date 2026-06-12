@@ -101,3 +101,12 @@ Issues spotted during codebase analysis but not yet in scope of any ticket. Agen
 **[TIMETABLE-001] Timetable fetch has no try/catch — unhandled rejection on network error**
 - File: `frontend/src/components/Pages/Timetable.jsx` — the `load()` async function inside `useEffect` checks `resp.ok` for HTTP errors but has no outer try/catch, so a network-level failure throws an unhandled promise rejection and leaves `isLoading` true forever.
 - Not covered by any ticket yet (error-handling groundwork is TICKET-007).
+
+---
+
+## 2026-06-12 — TICKET-020 implementation scan
+
+**[IMPORT-001] Unused `nextDepartureMinutes` import in StopDetailView.jsx**
+- File: `frontend/src/components/Elements/StopDetailView.jsx` line 5
+- `nextDepartureMinutes` is imported from `../../utils/countdown` but is never called anywhere in the component (countdown is computed inline as `nextDep.mins - currentMins`).
+- Pre-existing; not introduced by TICKET-020. Not covered by any ticket yet.
