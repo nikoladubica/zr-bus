@@ -1,0 +1,91 @@
+name: Deploy ZR-Bus to the Server
+
+on:
+  push:
+    branches:
+      - development
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "npm"
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+
+      # ── Backend Build ─────────────────────────────────────────────────────────
+
+      - name: Install Backend Dependencies
+        run: npm ci --legacy-peer-deps
+        working-directory: backend
+
+      - name: Build Backend
+        run: npm run build
+        working-directory: backend
+
+      - name: Prepare Backend Artifact
+        run: |
+          mkdir -p backend-deploy
+          cp -r backend/dist backend-deploy/
+          cp backend/package.json backend-deploy/
+          cp backend/package-lock.json backend-deploy/
+
+      # ── Frontend Build ────────────────────────────────────────────────────────
+
+      - name: Install Frontend Dependencies
+        run: npm ci --legacy-peer-deps
+        working-directory: frontend
+
+      - name: Create Frontend .env
+        run: echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" > frontend/.env
+
+      - name: Build Frontend
+        run: npm run build
+        working-directory: frontend
+
+      - name: Check Frontend Build
+        run: ls -la frontend/dist
+
+      # ── Deploy Backend ────────────────────────────────────────────────────────
+
+      - name: Sync Backend to Server
+        uses: easingthemes/ssh-deploy@v2.1.5
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SOURCE: "backend-deploy/"
+          ARGS: "-rlgoDzv --delete --exclude=.env"
+          REMOTE_HOST: ${{ secrets.VPS_HOST }}
+          REMOTE_USER: ${{ secrets.VPS_USER }}
+          TARGET: ${{ secrets.BACKEND_PATH }}
+
+      - name: Install Production Dependencies & Restart Backend
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ${{ secrets.BACKEND_PATH }}
+            npm ci --omit=dev --legacy-peer-deps
+            pm2 restart ${{ secrets.PM2_APP_NAME }} || pm2 start dist/main.js --name ${{ secrets.PM2_APP_NAME }}
+
+      # ── Deploy Frontend ───────────────────────────────────────────────────────
+
+      - name: Sync Frontend to Server
+        uses: easingthemes/ssh-deploy@v2.1.5
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SOURCE: "frontend/dist"
+          ARGS: "-rlgoDzv --delete --exclude=.htaccess"
+          REMOTE_HOST: ${{ secrets.VPS_HOST }}
+          REMOTE_USER: ${{ secrets.VPS_USER }}
+          TARGET: ${{ secrets.FRONTEND_PATH }}
