@@ -17,6 +17,7 @@ const SearchView = () => {
     const favourites = useStore((s) => s.favourites);
     const selectStopFromSearch = useStore((s) => s.selectStopFromSearch);
     const selectLineFromSearch = useStore((s) => s.selectLineFromSearch);
+    const setSearchMode = useStore((s) => s.setSearchMode);
 
     const inputRef = useRef(null);
     const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -111,6 +112,21 @@ const SearchView = () => {
 
     return (
         <div className="flex flex-col h-full">
+            {/* Tab toggle */}
+            <div className="flex border-b dark:border-white/10 border-black/10 shrink-0 p-2 px-3">
+                <button
+                    onClick={() => setSearchMode('stanica')}
+                    className="flex-1 py-2 text-xs font-medium dark:text-white text-gray-900 border-r dark:border-white/10 border-black/10 rounded-none! rounded-l-2xl!"
+                >
+                    {isCyrillic ? 'Станица' : 'Stanica'}
+                </button>
+                <button
+                    onClick={() => setSearchMode('ruta')}
+                    className="flex-1 py-2 text-xs font-medium dark:text-white/40 text-gray-400 dark:hover:text-white/60 hover:text-gray-600 transition-colors rounded-none! rounded-r-2xl!"
+                >
+                    {isCyrillic ? 'Рута' : 'Ruta'}
+                </button>
+            </div>
             <div className="flex items-center gap-2 px-3 pt-2 pb-2 border-b dark:border-white/10 border-black/10 shrink-0">
                 <span className="text-base dark:text-white/40 text-gray-400 shrink-0">⌕</span>
                 <input

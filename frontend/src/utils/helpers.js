@@ -109,6 +109,27 @@ export const getUniqueStops = (allLinesLocations) => {
     return Object.values(byLocation);
 };
 
+export const todayDayType = () => {
+    const d = new Date().getDay();
+    if (d === 0) return 'sunday';
+    if (d === 6) return 'saturday';
+    return 'workday';
+};
+
+export const findDirectRoutes = (fromLocationId, toLocationId, allLinesLocations) => {
+    const fromEntries = allLinesLocations.filter(e => e.locations?.id === fromLocationId);
+    const toEntries = allLinesLocations.filter(e => e.locations?.id === toLocationId);
+    const results = [];
+    fromEntries.forEach(fe => {
+        const te = toEntries.find(te =>
+            te.lines?.id === fe.lines?.id &&
+            fe.stop_number < te.stop_number
+        );
+        if (te) results.push({ fromEntry: fe, toEntry: te });
+    });
+    return results;
+};
+
 // Returns all unique stops sorted by distance, with distance in metres.
 export const getNearbyStops = (allLinesLocations, currentLocation, limit = 10) => {
     if (!currentLocation?.lat || !currentLocation?.lng || !allLinesLocations?.length) return [];

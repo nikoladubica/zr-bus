@@ -110,3 +110,12 @@ Issues spotted during codebase analysis but not yet in scope of any ticket. Agen
 - File: `frontend/src/components/Elements/StopDetailView.jsx` line 5
 - `nextDepartureMinutes` is imported from `../../utils/countdown` but is never called anywhere in the component (countdown is computed inline as `nextDep.mins - currentMins`).
 - Pre-existing; not introduced by TICKET-020. Not covered by any ticket yet.
+
+---
+
+## 2026-06-12 — TICKET-021 implementation scan
+
+**[TRIP-001] "Moja lokacija" sets tripFrom before geolocation resolves**
+- File: `frontend/src/components/Elements/TripPlannerView.jsx` — `handleMyLocation()`
+- When `currentLocation.lat` is null, `getCurrentLocation()` is called (async geolocation) but `setTripFrom({ lat: null, lng: null })` runs immediately. If the user taps "Pretraži rutu" before location resolves, `getClosestStop` returns null → silent `no_route` error with no indication that location is still loading.
+- Related to pre-existing [STORE-002] race condition. Not covered by any ticket yet.
