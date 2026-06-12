@@ -84,7 +84,7 @@ jobs:
         uses: easingthemes/ssh-deploy@v2.1.5
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SOURCE: "frontend/dist/"
+          SOURCE: "frontend/dist"
           ARGS: "-rlgoDzv --delete --exclude=.htaccess"
           REMOTE_HOST: ${{ secrets.VPS_HOST }}
           REMOTE_USER: ${{ secrets.VPS_USER }}
