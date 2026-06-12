@@ -41,6 +41,7 @@ const Home = () => {
             </BottomSheet>
 
             <div className="flex-1 relative h-full">
+                <h1 className="sr-only">ZR Bus - Interaktivna mapa gradskih autobuskih linija u Zrenjaninu</h1>
                 <Map />
             </div>
 
