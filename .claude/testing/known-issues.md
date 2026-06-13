@@ -113,6 +113,20 @@ Issues spotted during codebase analysis but not yet in scope of any ticket. Agen
 
 ---
 
+## 2026-06-12 — TICKET-022 implementation scan
+
+**[AUTH-001] `JwtModule.register` uses `as any` for `expiresIn`**
+- File: `backend/src/auth/auth.module.ts` line 16
+- `process.env.JWT_EXPIRES_IN` is `string | undefined` which doesn't satisfy `@types/jsonwebtoken`'s branded `StringValue` type. Cast to `as any` to unblock the build. No runtime impact — the value is always a valid duration string when set. A future upgrade of `@nestjs/jwt` may resolve the type-narrowing.
+- Not covered by any ticket yet.
+
+**[AUTH-002] JWT secret read from `process.env` at module registration time (not via `ConfigService`)**
+- File: `backend/src/auth/auth.module.ts` and `backend/src/auth/jwt.strategy.ts`
+- `process.env.JWT_SECRET` is read directly rather than through `@nestjs/config`'s `ConfigService`. This works because `ConfigModule.forRoot({ isGlobal: true })` populates `process.env`, but it bypasses type-safe config validation. Future hardening would use `JwtModule.registerAsync` with `ConfigService`.
+- Not covered by any ticket yet.
+
+---
+
 ## 2026-06-12 — TICKET-021 implementation scan
 
 **[TRIP-001] "Moja lokacija" sets tripFrom before geolocation resolves**
