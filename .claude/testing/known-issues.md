@@ -133,3 +133,27 @@ Issues spotted during codebase analysis but not yet in scope of any ticket. Agen
 - File: `frontend/src/components/Elements/TripPlannerView.jsx` — `handleMyLocation()`
 - When `currentLocation.lat` is null, `getCurrentLocation()` is called (async geolocation) but `setTripFrom({ lat: null, lng: null })` runs immediately. If the user taps "Pretraži rutu" before location resolves, `getClosestStop` returns null → silent `no_route` error with no indication that location is still loading.
 - Related to pre-existing [STORE-002] race condition. Not covered by any ticket yet.
+
+---
+
+## 2026-06-13 — TICKET-023 implementation scan
+
+**[ADMIN-001] `handleDeleteAll` deletes ALL day types, confirm message implies day-type scope**
+- File: `frontend/src/components/Pages/Admin.jsx` line ~596
+- `DELETE /lines-locations-departures/by-lines-location/:id` removes all departures for the lines_location regardless of day_type. The confirm dialog says "Obriši SVE polaske za ovu stanicu ({day_label})?" which implies only the active day type is affected — misleading. The backend service has no day_type filter.
+- Not covered by any ticket yet.
+
+**[ADMIN-002] Local `departures` variable shadows outer state in `handleBulkImport`**
+- File: `frontend/src/components/Pages/Admin.jsx` line ~566
+- Inside `DeparturesTab`, `handleBulkImport` declares `const departures = bulkText.split(...)` which shadows the `departures` state variable in the same component. Works at runtime due to closure scoping, but fragile.
+- Not covered by any ticket yet.
+
+**[ADMIN-003] MapContainer center not reactive in stop placement modal**
+- File: `frontend/src/components/Pages/Admin.jsx` — `StopsTab` modal
+- `MapContainer center={markerPos ?? [position.lat, position.lng]}` is only applied on initial mount (Leaflet MapContainer is uncontrolled). If the modal is opened for a stop that already has coordinates, the map center is correct on first open, but re-opening the modal for a different stop won't re-center the map. A `MapChangeView`-style component (like the public map uses) would fix this.
+- Not covered by any ticket yet.
+
+**[ADMIN-004] CRUD service `update()` methods return null if entity not found**
+- Files: `backend/src/lines/lines.service.ts`, `backend/src/locations/locations.service.ts`, `backend/src/lines-locations-departures/lines-locations-departures.service.ts`
+- After `repository.update(id, dto)`, the service calls `findOneBy({ id })` which returns `null` if the entity was deleted between the update and select calls (or if the id was invalid). No `NotFoundException` is thrown. Not a runtime risk with normal usage but worth noting.
+- Not covered by any ticket yet.
