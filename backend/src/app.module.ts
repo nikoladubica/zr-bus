@@ -11,6 +11,7 @@ import { LinesLocationsDeparturesModule } from './lines-locations-departures/lin
 import { LinesRoutesModule } from './lines-routes/lines-routes.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { SurveyModule } from './survey/survey.module';
 
 @Module({
     imports: [
@@ -25,6 +26,7 @@ import { AuthModule } from './auth/auth.module';
         LinesRoutesModule,
         UsersModule,
         AuthModule,
+        SurveyModule,
     ],
     controllers: [AppController],
     providers: [AppService],

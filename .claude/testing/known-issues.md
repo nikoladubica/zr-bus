@@ -157,3 +157,22 @@ Issues spotted during codebase analysis but not yet in scope of any ticket. Agen
 - Files: `backend/src/lines/lines.service.ts`, `backend/src/locations/locations.service.ts`, `backend/src/lines-locations-departures/lines-locations-departures.service.ts`
 - After `repository.update(id, dto)`, the service calls `findOneBy({ id })` which returns `null` if the entity was deleted between the update and select calls (or if the id was invalid). No `NotFoundException` is thrown. Not a runtime risk with normal usage but worth noting.
 - Not covered by any ticket yet.
+
+---
+
+## 2026-06-13 — TICKET-024 implementation scan
+
+**[SURVEY-001] `simplify_tolerance` interpolated directly into SQL (low-risk injection vector)**
+- File: `backend/src/survey/survey.service.ts` line ~113
+- `ST_Simplify(raw_track, ${simplifyTolerance})` interpolates the tolerance directly into raw SQL. TypeScript types it as `number | undefined`, but without runtime validation a crafted non-numeric string body would produce malformed SQL. Class-validator is not installed; add a manual `parseFloat` and `isNaN` guard before using.
+- Not covered by any ticket yet.
+
+**[SURVEY-002] `SurveyCapture` submit has no error handling**
+- File: `frontend/src/components/Pages/SurveyCapture.jsx` — `handleSubmit()`
+- If `authFetch` for the submit call fails (network error or non-2xx), the component still navigates to the review page, where `session.raw_track` will be null and the map will be empty with no explanation.
+- Not covered by any ticket yet.
+
+**[SURVEY-003] Session track fetched from `existingRoute` using single result assumption**
+- File: `frontend/src/components/Pages/SurveyReview.jsx` — `existingRoutePositions` memo
+- `GET /lines-routes/:lineId` may return an array (if the line has multiple route segments / directions), but the memo accesses `existingRoute?.route?.coordinates` as if it's a single object. If the API returns an array, `existingRoute.route` will be undefined and no existing route is shown.
+- Not covered by any ticket yet.

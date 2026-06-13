@@ -739,12 +739,20 @@ const AdminInner = () => {
                         <h1 className="text-2xl font-semibold text-white">Admin panel</h1>
                         <p className="text-sm text-white/50 mt-1">ZR-Bus administracija</p>
                     </div>
-                    <button
-                        onClick={handleLogout}
-                        className="px-4 py-2 rounded-xl text-sm bg-white/5 border border-white/10 text-white/60 hover:bg-white/10 hover:text-white/80 transition-all duration-200"
-                    >
-                        Odjava
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => navigate('/admin/survey')}
+                            className="px-4 py-2 rounded-xl text-sm bg-white/5 border border-white/10 text-white/60 hover:bg-white/10 hover:text-white/80 transition-all duration-200"
+                        >
+                            Terensko snimanje
+                        </button>
+                        <button
+                            onClick={handleLogout}
+                            className="px-4 py-2 rounded-xl text-sm bg-white/5 border border-white/10 text-white/60 hover:bg-white/10 hover:text-white/80 transition-all duration-200"
+                        >
+                            Odjava
+                        </button>
+                    </div>
                 </div>
 
                 <div className="flex gap-1 border-b border-white/10 pb-0">
