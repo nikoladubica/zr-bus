@@ -3,6 +3,7 @@ import useStore from '../../store/client/useStore';
 import { useScript } from '../../context/ScriptContext.jsx';
 import StopDetailView from './StopDetailView';
 import SearchView from './SearchView';
+import TripPlannerView from './TripPlannerView';
 import { getNearbyStops } from '../../utils/helpers';
 import { nextDepartureMinutes, countdownLabel, followingTimes } from '../../utils/countdown';
 import MapLineSwitcher from './Map/MapLineSwitcher';
@@ -13,6 +14,7 @@ const HomeSheetContent = () => {
 
     const isSearchOpen = useStore((s) => s.isSearchOpen);
     const openSearch = useStore((s) => s.openSearch);
+    const searchMode = useStore((s) => s.searchMode);
 
     const allLinesLocations = useStore((s) => s.allLinesLocations);
     const currentLocation = useStore((s) => s.currentLocation);
@@ -76,6 +78,7 @@ const HomeSheetContent = () => {
     };
 
     if (isSearchOpen) {
+        if (searchMode === 'ruta') return <TripPlannerView />;
         return <SearchView />;
     }
 
@@ -87,16 +90,42 @@ const HomeSheetContent = () => {
         <div className="flex flex-col gap-5 p-4 pb-8">
 
             {/* ── SEARCH PILL ── */}
-            <button
-                onClick={openSearch}
-                className="flex items-center gap-3 w-full px-4 py-3 rounded-2xl dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border dark:hover:bg-white/8 hover:bg-black/8 transition-colors text-left"
-                aria-label={isCyrillic ? 'Отвори претрагу' : 'Otvori pretragu'}
-            >
-                <span className="text-base dark:text-white/30 text-gray-400">⌕</span>
-                <span className="text-sm dark:text-white/40 text-gray-400 flex-1">
-                    {isCyrillic ? 'Претражи станицу / линију' : 'Pretraži stanicu / liniju'}
-                </span>
-            </button>
+            <div className="rounded-2xl dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border overflow-hidden">
+                <div className="flex border-b dark:border-white/10 border-black/10">
+                    <button
+                        onClick={() => openSearch('stanica')}
+                        className={`flex-1 py-2 text-xs font-medium transition-colors border-r dark:border-white/10 border-black/10 rounded-none! rounded-tl-2xl! ${
+                            searchMode === 'stanica'
+                                ? 'dark:text-white text-gray-900'
+                                : 'dark:text-white/40 text-gray-400 dark:hover:text-white/60 hover:text-gray-600'
+                        }`}
+                    >
+                        {isCyrillic ? 'Станица' : 'Stanica'}
+                    </button>
+                    <button
+                        onClick={() => openSearch('ruta')}
+                        className={`flex-1 py-2 text-xs font-medium transition-colors rounded-none! rounded-tr-2xl! ${
+                            searchMode === 'ruta'
+                                ? 'dark:text-white text-gray-900'
+                                : 'dark:text-white/40 text-gray-400 dark:hover:text-white/60 hover:text-gray-600'
+                        }`}
+                    >
+                        {isCyrillic ? 'Рута' : 'Ruta'}
+                    </button>
+                </div>
+                <button
+                    onClick={() => openSearch(searchMode)}
+                    className="flex items-center gap-3 w-full px-4 py-3 dark:hover:bg-white/8 hover:bg-black/8 transition-colors text-left"
+                    aria-label={isCyrillic ? 'Отвори претрагу' : 'Otvori pretragu'}
+                >
+                    <span className="text-base dark:text-white/30 text-gray-400">⌕</span>
+                    <span className="text-sm dark:text-white/40 text-gray-400 flex-1">
+                        {searchMode === 'ruta'
+                            ? (isCyrillic ? 'Планирај руту А → Б' : 'Planiraj rutu A → B')
+                            : (isCyrillic ? 'Претражи станицу / линију' : 'Pretraži stanicu / liniju')}
+                    </span>
+                </button>
+            </div>
 
             {/* ── NEXT BUS ── */}
             {closestStopInfo && (

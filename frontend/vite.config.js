@@ -3,14 +3,14 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { VitePWA } from "vite-plugin-pwa";
 
-const apiUrl = process.env.VITE_API_URL ?? "http://localhost:3000";
-const apiOrigin = new URL(apiUrl).origin.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
 export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
     VitePWA({
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.js',
       registerType: "autoUpdate",
       includeAssets: ["pwa-192.png", "pwa-512.png", "pwa-icon.svg"],
       manifest: {
@@ -42,27 +42,12 @@ export default defineConfig({
           },
         ],
       },
-      workbox: {
-        globPatterns: ["**/*.{js,css,html,ico,png,svg,woff,woff2}"],
-        runtimeCaching: [
-          {
-            urlPattern: new RegExp(`^${apiOrigin}/lines`),
-            handler: "StaleWhileRevalidate",
-            options: {
-              cacheName: "api-data",
-              expiration: {
-                maxEntries: 20,
-                maxAgeSeconds: 60 * 60 * 24 * 7,
-              },
-              cacheableResponse: {
-                statuses: [0, 200],
-              },
-            },
-          },
-        ],
+      injectManifest: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
       },
       devOptions: {
         enabled: true,
+        type: 'module',
       },
     }),
   ],

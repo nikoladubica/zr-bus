@@ -3,7 +3,7 @@ name: Deploy ZR-Bus to the Server
 on:
   push:
     branches:
-      - development
+      - main
 
 jobs:
   build-and-deploy:

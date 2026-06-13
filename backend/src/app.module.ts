@@ -9,6 +9,9 @@ import { LocationsModule } from './locations/locations.module';
 import { LinesLocationsModule } from './lines-locations/lines-locations.module';
 import { LinesLocationsDeparturesModule } from './lines-locations-departures/lines-locations-departures.module';
 import { LinesRoutesModule } from './lines-routes/lines-routes.module';
+import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
+import { SurveyModule } from './survey/survey.module';
 
 @Module({
     imports: [
@@ -21,6 +24,9 @@ import { LinesRoutesModule } from './lines-routes/lines-routes.module';
         LinesLocationsModule,
         LinesLocationsDeparturesModule,
         LinesRoutesModule,
+        UsersModule,
+        AuthModule,
+        SurveyModule,
     ],
     controllers: [AppController],
     providers: [AppService],

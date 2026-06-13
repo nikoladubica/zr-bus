@@ -352,3 +352,11 @@ The tickets created from this report (008–017) are ordered so each builds on t
 ---
 
 *End of report. Front-end redesign tickets 008–017 created in `.claude/tickets/`.*
+
+---
+
+*Next: Manual entry:*
+
+## Part 4 - Real-time vehicle positions
+
+Research how to approach the local company to make this function possible.

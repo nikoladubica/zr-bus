@@ -1,6 +1,6 @@
 import { LINES_ROUTES, LINES_LOCATIONS, LINES_LOCATIONS_DEPARTURES } from '../../utils/api';
 import { position } from '../../utils/enums';
-import { getClosestStop } from '../../utils/helpers';
+import { getClosestStop, todayDayType, findDirectRoutes } from '../../utils/helpers';
 
 const loadRecentSearches = () => {
     try {
@@ -43,6 +43,12 @@ const createLineSlice = (set, get) => ({
     isSearchOpen: false,
     searchQuery: '',
     recentSearches: loadRecentSearches(),
+    searchMode: 'stanica',
+    tripFrom: null,
+    tripTo: null,
+    tripResults: [],
+    tripLoading: false,
+    tripError: null,
 
     addFavourite: (locationId) => {
         set((state) => {
@@ -65,9 +71,14 @@ const createLineSlice = (set, get) => ({
     },
     isFavourite: (locationId) => get().favourites.includes(locationId),
 
-    openSearch: () => set({ isSearchOpen: true, sheetSnap: 'full' }),
+    openSearch: (mode = 'stanica') => set({ isSearchOpen: true, sheetSnap: 'full', searchMode: mode }),
     closeSearch: () => set({ isSearchOpen: false, searchQuery: '' }),
     setSearchQuery: (q) => set({ searchQuery: q }),
+    setSearchMode: (mode) => set({ searchMode: mode }),
+    setTripFrom: (from) => set({ tripFrom: from, tripResults: [], tripError: null }),
+    setTripTo: (to) => set({ tripTo: to, tripResults: [], tripError: null }),
+    swapTripEndpoints: () => set((s) => ({ tripFrom: s.tripTo, tripTo: s.tripFrom, tripResults: [], tripError: null })),
+    clearTrip: () => set({ tripFrom: null, tripTo: null, tripResults: [], tripError: null }),
 
     addRecentSearch: (item) => set((state) => {
         const next = [item, ...state.recentSearches.filter(
@@ -231,6 +242,121 @@ const createLineSlice = (set, get) => ({
         }
     },
     clearSelectedStop: () => set({ departures: [], selectedStopId: null, sheetSnap: 'peek' }),
+
+    planTrip: async () => {
+        const { tripFrom, tripTo, allLinesLocations, currentLocation } = get();
+        if (!tripFrom || !tripTo) return;
+
+        set({ tripLoading: true, tripError: null, tripResults: [] });
+
+        try {
+            let fromLocationId, fromLocation, walkToBoardMins;
+            if (tripFrom.type === 'location') {
+                const nearest = getClosestStop(allLinesLocations, { lat: tripFrom.lat, lng: tripFrom.lng });
+                if (!nearest) { set({ tripError: 'no_route', tripLoading: false }); return; }
+                fromLocationId = nearest.locationId;
+                fromLocation = nearest.location;
+                walkToBoardMins = Math.round(nearest.distance / 80);
+            } else {
+                fromLocationId = tripFrom.locationId;
+                fromLocation = tripFrom.location;
+                walkToBoardMins = 0;
+            }
+
+            const toLocationId = tripTo.locationId;
+            const toLocation = tripTo.location;
+
+            if (fromLocationId === toLocationId) {
+                set({ tripError: 'same_stop', tripLoading: false });
+                return;
+            }
+
+            const matches = findDirectRoutes(fromLocationId, toLocationId, allLinesLocations);
+            if (!matches.length) {
+                set({ tripError: 'no_route', tripLoading: false });
+                return;
+            }
+
+            const dayType = todayDayType();
+            const now = new Date();
+            const currentMins = now.getHours() * 60 + now.getMinutes();
+            const effectiveNow = currentMins + walkToBoardMins;
+
+            const itineraries = [];
+
+            await Promise.all(matches.map(async ({ fromEntry, toEntry }) => {
+                try {
+                    const [boardDeps, alightDeps] = await Promise.all([
+                        fetch(`${LINES_LOCATIONS_DEPARTURES}/${fromEntry.id}`).then(r => r.json()),
+                        fetch(`${LINES_LOCATIONS_DEPARTURES}/${toEntry.id}`).then(r => r.json()),
+                    ]);
+
+                    const timeToMins = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+
+                    const boardTimes = boardDeps
+                        .filter(d => d.day_type === dayType)
+                        .map(d => ({ mins: timeToMins(d.departure), fmt: d.departure.slice(0, 5) }))
+                        .sort((a, b) => a.mins - b.mins);
+
+                    const alightTimes = alightDeps
+                        .filter(d => d.day_type === dayType)
+                        .map(d => ({ mins: timeToMins(d.departure), fmt: d.departure.slice(0, 5) }))
+                        .sort((a, b) => a.mins - b.mins);
+
+                    if (!boardTimes.length || !alightTimes.length) return;
+
+                    boardTimes
+                        .filter(b => b.mins >= effectiveNow)
+                        .slice(0, 5)
+                        .forEach(board => {
+                            const alight = alightTimes.find(a => a.mins > board.mins);
+                            if (!alight) return;
+                            const travelMins = alight.mins - board.mins;
+                            itineraries.push({
+                                lineId: fromEntry.lines.id,
+                                lineNumber: fromEntry.lines.number,
+                                lineColor: fromEntry.lines.hex_color,
+                                lineLatName: fromEntry.lines.lat_name,
+                                lineCyrName: fromEntry.lines.cyr_name,
+                                direction: fromEntry.lines.direction,
+                                boardStopId: fromLocationId,
+                                boardLatName: fromLocation.lat_name,
+                                boardCyrName: fromLocation.cyr_name,
+                                boardLat: fromLocation.lat,
+                                boardLng: fromLocation.lng,
+                                alightStopId: toLocationId,
+                                alightLatName: toLocation.lat_name,
+                                alightCyrName: toLocation.cyr_name,
+                                walkToBoard: walkToBoardMins,
+                                boardTime: board.fmt,
+                                alightTime: alight.fmt,
+                                boardMins: board.mins,
+                                travelMins,
+                            });
+                        });
+                } catch {
+                    // Skip this match on fetch failure
+                }
+            }));
+
+            if (!itineraries.length) {
+                set({ tripError: 'no_service', tripLoading: false });
+                return;
+            }
+
+            itineraries.sort((a, b) => a.boardMins - b.boardMins);
+            set({ tripResults: itineraries, tripLoading: false });
+        } catch {
+            set({ tripError: 'fetch_error', tripLoading: false });
+        }
+    },
+
+    selectTripItinerary: (itinerary) => {
+        const { filterLineById, closeSearch } = get();
+        filterLineById(itinerary.lineId);
+        set({ mapCenter: { lat: itinerary.boardLat, lng: itinerary.boardLng }, mapZoom: 16 });
+        closeSearch();
+    },
     fetchLinesLocations: async (lineId) => {
         const fullUrl = `${LINES_LOCATIONS}/${lineId}`;
         set({ isLoading: true, error: null });
