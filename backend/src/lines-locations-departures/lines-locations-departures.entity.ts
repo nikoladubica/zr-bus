@@ -7,7 +7,7 @@ import {
     PrimaryGeneratedColumn,
 } from 'typeorm';
 
-export type DayType = 'workday' | 'saturday' | 'sunday';
+export type DayType = 'workday' | 'weekend' | 'saturday' | 'sunday' | 'everyday';
 
 @Entity('lines_locations_departures')
 export class LinesLocationsDepartures {
@@ -19,7 +19,7 @@ export class LinesLocationsDepartures {
 
     @Column({
         type: 'enum',
-        enum: ['workday', 'saturday', 'sunday'],
+        enum: ['workday', 'weekend', 'saturday', 'sunday', 'everyday'],
         default: 'workday',
     })
     day_type: DayType;
