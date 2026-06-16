@@ -12,7 +12,15 @@ export default defineConfig({
       srcDir: 'src',
       filename: 'sw.js',
       registerType: "autoUpdate",
-      includeAssets: ["pwa-192.png", "pwa-512.png", "pwa-icon.svg"],
+      includeAssets: [
+        "android-chrome-192x192.png",
+        "android-chrome-512x512.png",
+        "icon.svg",
+        "apple-touch-icon.png",
+        "favicon.ico",
+        "favicon-16x16.png",
+        "favicon-32x32.png",
+      ],
       manifest: {
         name: "ZR Bus — Gradski prevoz Zrenjanin",
         short_name: "ZR Bus",
@@ -25,17 +33,17 @@ export default defineConfig({
         lang: "sr",
         icons: [
           {
-            src: "pwa-192.png",
+            src: "android-chrome-192x192.png",
             sizes: "192x192",
             type: "image/png",
           },
           {
-            src: "pwa-512.png",
+            src: "android-chrome-512x512.png",
             sizes: "512x512",
             type: "image/png",
           },
           {
-            src: "pwa-icon.svg",
+            src: "icon.svg",
             sizes: "any",
             type: "image/svg+xml",
             purpose: "any maskable",
