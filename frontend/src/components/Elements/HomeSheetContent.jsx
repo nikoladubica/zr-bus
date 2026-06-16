@@ -115,7 +115,7 @@ const HomeSheetContent = () => {
                 </div>
                 <button
                     onClick={() => openSearch(searchMode)}
-                    className="flex items-center gap-3 w-full px-4 py-3 dark:hover:bg-white/8 hover:bg-black/8 transition-colors text-left"
+                    className="flex items-center gap-3 w-full px-4 py-3 dark:hover:bg-white/8 hover:bg-black/8 transition-colors text-left rounded-none! rounded-b-2xl!"
                     aria-label={isCyrillic ? 'Отвори претрагу' : 'Otvori pretragu'}
                 >
                     <span className="text-base dark:text-white/30 text-gray-400">⌕</span>
@@ -133,7 +133,10 @@ const HomeSheetContent = () => {
                     <p className="text-xs font-medium uppercase tracking-wide dark:text-white/40 text-gray-400 text-left">
                         {isCyrillic ? 'Следећи аутобус' : 'Sledeći autobus'}
                     </p>
-                    <div className="rounded-2xl dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border p-3 flex flex-col gap-2">
+                    <div
+                        onClick={() => fetchStopDepartures(closestStopInfo.locationId)}
+                        className="rounded-2xl dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border p-3 flex flex-col gap-2 cursor-pointer transition-colors hover:border-[#646cff] dark:hover:border-[#646cff]"
+                    >
                         <div className="flex items-start justify-between gap-2">
                             <div>
                                 <p className="font-semibold text-sm dark:text-white text-gray-900 leading-snug">
@@ -144,7 +147,7 @@ const HomeSheetContent = () => {
                                 </p>
                             </div>
                             <button
-                                onClick={() => toggleFavourite(closestStopInfo.locationId)}
+                                onClick={(e) => { e.stopPropagation(); toggleFavourite(closestStopInfo.locationId); }}
                                 className="text-lg leading-none mt-0.5 shrink-0 transition-colors"
                                 aria-label={isClosestFav ? 'Ukloni iz omiljenih' : 'Dodaj u omiljene'}
                             >
@@ -187,7 +190,7 @@ const HomeSheetContent = () => {
                     </p>
                     <div className="flex flex-col gap-1">
                         {nearbyStops.map((stop) => (
-                            <div key={stop.locationId} onClick={() => fetchStopDepartures(stop.locationId)} className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border cursor-pointer dark:hover:bg-white/8 hover:bg-black/8 transition-colors">
+                            <div key={stop.locationId} onClick={() => fetchStopDepartures(stop.locationId)} className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border cursor-pointer hover:border-[#646cff] dark:hover:border-[#646cff] transition-colors">
                                 <button
                                     onClick={(e) => { e.stopPropagation(); toggleFavourite(stop.locationId); }}
                                     className="text-base leading-none shrink-0 transition-colors"

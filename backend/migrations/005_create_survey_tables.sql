@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS survey_sessions (
     started_at DATETIME NOT NULL,
     ended_at DATETIME NULL,
     raw_track GEOMETRY NULL,
-    CONSTRAINT fk_survey_sessions_line FOREIGN KEY (line_id) REFERENCES lines(id) ON DELETE CASCADE
+    CONSTRAINT fk_survey_sessions_line FOREIGN KEY (line_id) REFERENCES `lines`(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS survey_stops (

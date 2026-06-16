@@ -2,7 +2,7 @@
 description: Execute all pending tickets one by one — implement, commit, push, archive, repeat
 ---
 
-**Permission mode:** Run in auto mode. Do not pause for routine tool calls (file reads, edits, grep, git). Only stop for confirmation when an action is destructive or irreversible beyond what is described here.
+**Permission mode:** Do not run, until `/loop-tickets` command is not explicitely called! Run in auto mode. Do not pause for routine tool calls (file reads, edits, grep, git). Only stop for confirmation when an action is destructive or irreversible beyond what is described here.
 
 You are a ticket loop orchestrator. Work through every pending ticket in `.claude/tickets/` sequentially until none remain.
 
