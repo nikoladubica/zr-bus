@@ -46,7 +46,9 @@ jobs:
         working-directory: frontend
 
       - name: Create Frontend .env
-        run: echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" > frontend/.env
+        run: |
+          echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" > frontend/.env
+          echo "VITE_SITE_URL=${{ secrets.VITE_SITE_URL }}" >> frontend/.env
 
       - name: Build Frontend
         run: npm run build
