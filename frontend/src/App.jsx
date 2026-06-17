@@ -1,13 +1,15 @@
+import { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router';
 import Home from './components/Pages/Home';
 import About from './components/Pages/About';
 import Timetable from './components/Pages/Timetable';
 import Login from './components/Pages/Login';
-import Admin from './components/Pages/Admin';
-import SurveyCapture from './components/Pages/SurveyCapture';
-import SurveyReview from './components/Pages/SurveyReview';
 import AdminRoute from './components/Elements/AdminRoute';
 import './App.css';
+
+const Admin = lazy(() => import('./components/Pages/Admin'));
+const SurveyCapture = lazy(() => import('./components/Pages/SurveyCapture'));
+const SurveyReview = lazy(() => import('./components/Pages/SurveyReview'));
 
 const PublicShell = ({ children }) => (
     <div className="h-screen w-screen overflow-hidden">{children}</div>
@@ -24,7 +26,7 @@ const App = () => {
                 path="admin"
                 element={
                     <AdminRoute>
-                        <Admin />
+                        <Suspense fallback={null}><Admin /></Suspense>
                     </AdminRoute>
                 }
             />
@@ -32,7 +34,7 @@ const App = () => {
                 path="admin/survey"
                 element={
                     <AdminRoute>
-                        <SurveyCapture />
+                        <Suspense fallback={null}><SurveyCapture /></Suspense>
                     </AdminRoute>
                 }
             />
@@ -40,7 +42,7 @@ const App = () => {
                 path="admin/survey/:id"
                 element={
                     <AdminRoute>
-                        <SurveyReview />
+                        <Suspense fallback={null}><SurveyReview /></Suspense>
                     </AdminRoute>
                 }
             />

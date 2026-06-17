@@ -2,16 +2,18 @@ import { LINES_ROUTES, LINES_LOCATIONS, LINES_LOCATIONS_DEPARTURES } from '../..
 import { position } from '../../utils/enums';
 import { getClosestStop, todayDayType, findDirectRoutes } from '../../utils/helpers';
 
+const safeLocalStorage = typeof localStorage !== 'undefined' ? localStorage : { getItem: () => null, setItem: () => {}, removeItem: () => {} };
+
 const loadRecentSearches = () => {
     try {
-        const parsed = JSON.parse(localStorage.getItem('recentSearches'));
+        const parsed = JSON.parse(safeLocalStorage.getItem('recentSearches'));
         return Array.isArray(parsed) ? parsed : [];
     } catch { return []; }
 };
 
 const loadFavourites = () => {
     try {
-        const parsed = JSON.parse(localStorage.getItem('favourites'));
+        const parsed = JSON.parse(safeLocalStorage.getItem('favourites'));
         return Array.isArray(parsed) ? parsed : [];
     } catch {
         return [];
@@ -54,14 +56,14 @@ const createLineSlice = (set, get) => ({
         set((state) => {
             if (state.favourites.includes(locationId)) return {};
             const next = [...state.favourites, locationId];
-            localStorage.setItem('favourites', JSON.stringify(next));
+            safeLocalStorage.setItem('favourites', JSON.stringify(next));
             return { favourites: next };
         });
     },
     removeFavourite: (locationId) => {
         set((state) => {
             const next = state.favourites.filter((id) => id !== locationId);
-            localStorage.setItem('favourites', JSON.stringify(next));
+            safeLocalStorage.setItem('favourites', JSON.stringify(next));
             return { favourites: next };
         });
     },
@@ -84,7 +86,7 @@ const createLineSlice = (set, get) => ({
         const next = [item, ...state.recentSearches.filter(
             (r) => !(r.type === item.type && r.id === item.id)
         )].slice(0, 5);
-        localStorage.setItem('recentSearches', JSON.stringify(next));
+        safeLocalStorage.setItem('recentSearches', JSON.stringify(next));
         return { recentSearches: next };
     }),
 

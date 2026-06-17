@@ -4,13 +4,13 @@ const ScriptContext = createContext('latin');
 
 export const ScriptProvider = ({ children }) => {
     const [script, setScript] = useState(
-        () => localStorage.getItem('script') || 'latin',
+        () => (typeof localStorage !== 'undefined' ? localStorage.getItem('script') : null) || 'latin',
     );
 
     const toggleScript = () =>
         setScript((s) => {
             const next = s === 'latin' ? 'cyrillic' : 'latin';
-            localStorage.setItem('script', next);
+            if (typeof localStorage !== 'undefined') localStorage.setItem('script', next);
             return next;
         });
 

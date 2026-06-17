@@ -59,4 +59,10 @@ export default defineConfig({
       },
     }),
   ],
+  build: {
+    ssrManifest: true,
+  },
+  ssr: {
+    noExternal: ['react-helmet-async'],
+  },
 });
