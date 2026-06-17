@@ -1,8 +1,10 @@
 import { AUTH_LOGIN } from '../../utils/api';
 
+const safeLocalStorage = typeof localStorage !== 'undefined' ? localStorage : { getItem: () => null, setItem: () => {}, removeItem: () => {} };
+
 const createAuthSlice = (set) => ({
-    token: localStorage.getItem('auth_token') ?? null,
-    isAuthenticated: !!localStorage.getItem('auth_token'),
+    token: safeLocalStorage.getItem('auth_token') ?? null,
+    isAuthenticated: !!safeLocalStorage.getItem('auth_token'),
     authLoading: false,
     authError: null,
 
@@ -19,7 +21,7 @@ const createAuthSlice = (set) => ({
                 return false;
             }
             const { access_token } = await res.json();
-            localStorage.setItem('auth_token', access_token);
+            safeLocalStorage.setItem('auth_token', access_token);
             set({ token: access_token, isAuthenticated: true, authLoading: false });
             return true;
         } catch {
@@ -29,7 +31,7 @@ const createAuthSlice = (set) => ({
     },
 
     logout: () => {
-        localStorage.removeItem('auth_token');
+        safeLocalStorage.removeItem('auth_token');
         set({ token: null, isAuthenticated: false, authError: null });
     },
 });

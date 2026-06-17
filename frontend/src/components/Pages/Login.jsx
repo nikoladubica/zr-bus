@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Navigate } from 'react-router';
+import { Helmet } from 'react-helmet-async';
 import Card from '../UI/Card';
 import useStore from '../../store/client/useStore';
 
@@ -21,6 +22,8 @@ const Login = () => {
     };
 
     return (
+        <>
+        <Helmet><meta name="robots" content="noindex, nofollow" /></Helmet>
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950 p-4">
             <Card className="w-full max-w-sm">
                 <div className="flex flex-col gap-6">
@@ -69,6 +72,7 @@ const Login = () => {
                 </div>
             </Card>
         </div>
+        </>
     );
 };
 

@@ -3,6 +3,7 @@ import { useEffect, useMemo } from 'react';
 import Card from '../UI/Card';
 import Header from '../Elements/Header/Header';
 import Footer from '../Elements/Footer/Footer';
+import PageHead from '../Elements/PageHead';
 import { useScript } from '../../context/ScriptContext.jsx';
 import { useTheme } from '../../context/ThemeContext.jsx';
 import useStore from '../../store/client/useStore';
@@ -29,6 +30,12 @@ const About = () => {
     );
 
     return (
+        <>
+        <PageHead
+            title="O nama — ZR Bus, gradski prevoz Zrenjanin (NetBus)"
+            description="O projektu ZR Bus — gradski autobuski prevoz u Zrenjaninu, prevoznik NetBus."
+            canonical="/o-nama"
+        />
         <div
             className={`h-screen w-screen overflow-y-auto flex flex-col gap-0 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}
             style={{
@@ -91,6 +98,7 @@ const About = () => {
             </div>
             <Footer />
         </div>
+        </>
     );
 };
 

@@ -12,6 +12,7 @@ import { LinesRoutesModule } from './lines-routes/lines-routes.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { SurveyModule } from './survey/survey.module';
+import { SitemapModule } from './sitemap/sitemap.module';
 
 @Module({
     imports: [
@@ -27,6 +28,7 @@ import { SurveyModule } from './survey/survey.module';
         UsersModule,
         AuthModule,
         SurveyModule,
+        SitemapModule,
     ],
     controllers: [AppController],
     providers: [AppService],
