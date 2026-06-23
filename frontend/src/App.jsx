@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router';
 import Home from './components/Pages/Home';
 import About from './components/Pages/About';
 import Timetable from './components/Pages/Timetable';
+import InterCityRoute from './components/Pages/InterCityRoute';
 import Login from './components/Pages/Login';
 import AdminRoute from './components/Elements/AdminRoute';
 import './App.css';
@@ -21,6 +22,9 @@ const App = () => {
             <Route path="/" element={<PublicShell><Home /></PublicShell>} />
             <Route path="o-nama" element={<PublicShell><About /></PublicShell>} />
             <Route path="red-voznje/:lineId?" element={<PublicShell><Timetable /></PublicShell>} />
+            <Route path="autobus/novi-sad-zrenjanin" element={<PublicShell><InterCityRoute corridor="novi-sad-zrenjanin" /></PublicShell>} />
+            <Route path="autobus/beograd-zrenjanin" element={<PublicShell><InterCityRoute corridor="beograd-zrenjanin" /></PublicShell>} />
+            <Route path="autobus/kikinda-zrenjanin" element={<PublicShell><InterCityRoute corridor="kikinda-zrenjanin" /></PublicShell>} />
             <Route path="prijava" element={<Login />} />
             <Route
                 path="admin"

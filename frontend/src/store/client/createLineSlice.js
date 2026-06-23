@@ -115,7 +115,8 @@ const createLineSlice = (set, get) => ({
             const response = await fetch(LINES_LOCATIONS);
             if (!response.ok) throw new Error(response.status);
             const data = await response.json();
-            set({ allLinesLocations: data });
+            const cityData = data.filter((e) => (e.lines?.category ?? 'city') === 'city');
+            set({ allLinesLocations: cityData });
         } catch {
             // Silent failure — home sheet degrades gracefully
         }
@@ -182,6 +183,7 @@ const createLineSlice = (set, get) => ({
                                 hex_color: item?.line?.hex_color,
                                 lat_name: item?.line?.lat_name,
                                 cyr_name: item?.line?.cyr_name,
+                                category: item?.line?.category,
                                 route: item?.route,
                             },
                             {
@@ -192,6 +194,7 @@ const createLineSlice = (set, get) => ({
                                 hex_color: structured?.[index + 1]?.line?.hex_color,
                                 lat_name: structured?.[index + 1]?.line?.lat_name,
                                 cyr_name: structured?.[index + 1]?.line?.cyr_name,
+                                category: structured?.[index + 1]?.line?.category,
                                 route: structured?.[index + 1]?.route,
                             },
                         ];
@@ -206,13 +209,18 @@ const createLineSlice = (set, get) => ({
                             hex_color: item?.line?.hex_color,
                             lat_name: item?.line?.lat_name,
                             cyr_name: item?.line?.cyr_name,
+                            category: item?.line?.category,
                             route: item?.route,
                         },
                     ];
                 }
             });
 
-            set({ data: mapped.filter((element) => !!element), isLoading: false });
+            const cityOnly = mapped.filter((element) => {
+                if (!element) return false;
+                return (element[0]?.category ?? 'city') === 'city';
+            });
+            set({ data: cityOnly, isLoading: false });
         } catch {
             set({ error: 'Nije moguće učitati linije. Proverite konekciju.', isLoading: false });
         }

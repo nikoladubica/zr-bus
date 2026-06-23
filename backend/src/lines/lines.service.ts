@@ -12,8 +12,31 @@ export class LinesService {
         private linesRepository: Repository<Lines>,
     ) {}
 
-    async findAll(): Promise<Lines[]> {
+    async findAll(category?: string): Promise<Lines[]> {
+        if (category === 'city' || category === 'intercity') {
+            return this.linesRepository.find({ where: { category } });
+        }
         return this.linesRepository.find();
+    }
+
+    async findIntercity(from: string, to: string): Promise<Lines[]> {
+        const toTitle = (slug: string) =>
+            slug.split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        const fromCity = toTitle(from);
+        const toCity = toTitle(to);
+
+        const lines = await this.linesRepository.find({
+            where: { category: 'intercity' },
+            relations: { linesLocations: { locations: true } },
+            order: { direction: 'ASC' },
+        });
+
+        return lines.filter((line) => {
+            const cities = new Set(
+                line.linesLocations.map((ll) => ll.locations?.city).filter(Boolean),
+            );
+            return cities.has(fromCity) && cities.has(toCity);
+        });
     }
 
     async create(dto: CreateLineDto): Promise<Lines> {

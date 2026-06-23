@@ -23,6 +23,8 @@ export class LinesRoutesService {
                 'lines.cyr_name AS cyr_name',
                 'lines.hex_color AS hex_color',
                 'lines.direction AS direction',
+                'lines.category AS category',
+                'lines.operator AS operator',
             ])
             .getRawMany()
             .then((rows) =>
@@ -36,6 +38,8 @@ export class LinesRoutesService {
                         cyr_name: r.cyr_name,
                         hex_color: r.hex_color,
                         direction: r.direction,
+                        category: r.category,
+                        operator: r.operator,
                     },
                 })),
             );
@@ -55,6 +59,8 @@ export class LinesRoutesService {
                 'lines.cyr_name AS cyr_name',
                 'lines.hex_color AS hex_color',
                 'lines.direction AS direction',
+                'lines.category AS category',
+                'lines.operator AS operator',
             ])
             .getRawMany()
             .then((rows) =>
@@ -68,6 +74,8 @@ export class LinesRoutesService {
                         cyr_name: r.cyr_name,
                         hex_color: r.hex_color,
                         direction: r.direction,
+                        category: r.category,
+                        operator: r.operator,
                     },
                 })),
             );

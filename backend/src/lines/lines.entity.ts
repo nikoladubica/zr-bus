@@ -22,6 +22,16 @@ export class Lines {
     @Column({ length: 11, nullable: true })
     direction: string | null;
 
+    @Column({
+        type: 'enum',
+        enum: ['city', 'intercity'],
+        default: 'city',
+    })
+    category: 'city' | 'intercity';
+
+    @Column({ length: 255, nullable: true })
+    operator: string | null;
+
     @OneToMany(() => LinesLocations, (ll) => ll.lines)
     linesLocations: LinesLocations[];
 

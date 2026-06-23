@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Param, Body, Query, UseGuards } from '@nestjs/common';
 import { LinesService } from './lines.service';
 import { CreateLineDto } from './dto/create-line.dto';
 import { UpdateLineDto } from './dto/update-line.dto';
@@ -11,8 +11,13 @@ export class LinesController {
     constructor(private readonly service: LinesService) {}
 
     @Get()
-    findAll() {
-        return this.service.findAll();
+    findAll(@Query('category') category?: string) {
+        return this.service.findAll(category);
+    }
+
+    @Get('intercity')
+    findIntercity(@Query('from') from: string, @Query('to') to: string) {
+        return this.service.findIntercity(from ?? '', to ?? '');
     }
 
     @Post()

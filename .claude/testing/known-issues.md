@@ -176,3 +176,17 @@ Issues spotted during codebase analysis but not yet in scope of any ticket. Agen
 - File: `frontend/src/components/Pages/SurveyReview.jsx` — `existingRoutePositions` memo
 - `GET /lines-routes/:lineId` may return an array (if the line has multiple route segments / directions), but the memo accesses `existingRoute?.route?.coordinates` as if it's a single object. If the API returns an array, `existingRoute.route` will be undefined and no existing route is shown.
 - Not covered by any ticket yet.
+
+---
+
+## 2026-06-17 — TICKET-026 implementation scan
+
+**[IC-001] `InterCityRoute` client-side fetch has no error handling**
+- File: `frontend/src/components/Pages/InterCityRoute.jsx` — `useEffect` block
+- `fetchCorridorData(API_URL, ...)` is called without a `.catch()`. A network-level failure throws an unhandled promise rejection and the page silently stays empty with no error state or user message.
+- Related to pre-existing [TIMETABLE-001]. Not covered by any ticket yet.
+
+**[IC-002] `InterCityRoute` crashes on unknown `corridor` prop**
+- File: `frontend/src/components/Pages/InterCityRoute.jsx` — `const config = CORRIDORS[corridor]`
+- If `corridor` is not in the `CORRIDORS` config map, `config` is `undefined` and `config.title` throws on first render. Routes in `App.jsx` are hardcoded so this won't happen in normal usage, but a typo in App.jsx has no graceful fallback.
+- Not covered by any ticket yet.

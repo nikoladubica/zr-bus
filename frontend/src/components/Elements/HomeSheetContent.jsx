@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { Link } from 'react-router';
 import useStore from '../../store/client/useStore';
 import { useScript } from '../../context/ScriptContext.jsx';
 import StopDetailView from './StopDetailView';
@@ -7,6 +8,12 @@ import TripPlannerView from './TripPlannerView';
 import { getNearbyStops } from '../../utils/helpers';
 import { nextDepartureMinutes, countdownLabel, followingTimes } from '../../utils/countdown';
 import MapLineSwitcher from './Map/MapLineSwitcher';
+
+const INTERCITY_CORRIDORS = [
+    { slug: 'novi-sad-zrenjanin', lat: 'Novi Sad – Zrenjanin', cyr: 'Нови Сад – Зрењанин', operator: 'Gea Tours', color: '#1A73E8' },
+    { slug: 'beograd-zrenjanin', lat: 'Beograd – Zrenjanin', cyr: 'Београд – Зрењанин', operator: null, color: '#34A853' },
+    { slug: 'kikinda-zrenjanin', lat: 'Kikinda – Zrenjanin', cyr: 'Кикинда – Зрењанин', operator: null, color: '#EA4335' },
+];
 
 const HomeSheetContent = () => {
     const { script } = useScript();
@@ -181,6 +188,40 @@ const HomeSheetContent = () => {
 
             {/* ── LINE SWITCHER ── always visible */}
             <MapLineSwitcher />
+
+            {/* ── MEĐUGRADSKI ── */}
+            <div className="flex flex-col gap-1.5">
+                <p className="text-xs font-medium uppercase tracking-wide dark:text-white/40 text-gray-400 text-left">
+                    {isCyrillic ? 'Мeђугрaдски' : 'Međugradski'}
+                </p>
+                <div className="flex flex-col gap-1">
+                    {INTERCITY_CORRIDORS.map((c) => (
+                        <Link
+                            key={c.slug}
+                            to={`/autobus/${c.slug}`}
+                            className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border dark:hover:bg-white/10 hover:bg-black/10 transition-colors"
+                        >
+                            <div className="flex items-center gap-2.5">
+                                <span
+                                    className="w-2 h-2 rounded-full shrink-0"
+                                    style={{ backgroundColor: c.color }}
+                                />
+                                <div className="flex flex-col">
+                                    <span className="text-sm dark:text-white text-gray-900">
+                                        {isCyrillic ? c.cyr : c.lat}
+                                    </span>
+                                    {c.operator && (
+                                        <span className="text-xs dark:text-white/40 text-gray-400">
+                                            {c.operator}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                            <span className="text-xs dark:text-white/30 text-gray-400">→</span>
+                        </Link>
+                    ))}
+                </div>
+            </div>
 
             {/* ── STANICE U BLIZINI ── always rendered */}
             {nearbyStops.length > 0 && (

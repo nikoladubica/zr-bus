@@ -16,6 +16,8 @@ export const DEPARTURES_API = `${API_URL}/lines-locations-departures`;
 
 export const SURVEY_API = `${API_URL}/survey`;
 
+export const INTERCITY_LINES_API = `${API_URL}/lines/intercity`;
+
 export const authFetch = (url, options = {}) => {
     const token = localStorage.getItem('auth_token');
     return fetch(url, {

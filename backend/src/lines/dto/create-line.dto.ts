@@ -4,4 +4,6 @@ export class CreateLineDto {
     cyr_name: string;
     hex_color: string;
     direction?: string;
+    category?: 'city' | 'intercity';
+    operator?: string;
 }

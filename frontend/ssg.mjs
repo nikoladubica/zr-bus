@@ -21,12 +21,19 @@ try {
     const res = await fetch(`${apiUrl}/lines`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     allLines = await res.json();
-    lineRoutes = allLines.map((l) => `/red-voznje/${l.id}`);
+    lineRoutes = allLines
+        .filter((l) => (l.category ?? 'city') === 'city')
+        .map((l) => `/red-voznje/${l.id}`);
 } catch (err) {
     console.warn('[SSG] Could not fetch /lines — building with static routes only:', err.message);
 }
 
-const allRoutes = [...staticRoutes, ...lineRoutes];
+const corridorRoutes = [
+    '/autobus/novi-sad-zrenjanin',
+    '/autobus/beograd-zrenjanin',
+    '/autobus/kikinda-zrenjanin',
+];
+const allRoutes = [...staticRoutes, ...lineRoutes, ...corridorRoutes];
 
 for (const routePath of noindexRoutes) {
     try {
@@ -45,8 +52,46 @@ for (const routePath of noindexRoutes) {
 
 async function fetchLoaderData(routePath) {
     if (routePath === '/red-voznje') {
-        return allLines.length > 0 ? { lines: allLines } : null;
+        const cityLines = allLines.filter((l) => (l.category ?? 'city') === 'city');
+        return cityLines.length > 0 ? { lines: cityLines } : null;
     }
+
+    const corridorMatch = routePath.match(/^\/autobus\/([\w-]+)$/);
+    if (corridorMatch) {
+        const slug = corridorMatch[1];
+        const parts = slug.split('-');
+        const zrIdx = parts.indexOf('zrenjanin');
+        if (zrIdx < 0) return null;
+        const from = parts.slice(0, zrIdx).join('-');
+        const to = 'zrenjanin';
+        try {
+            const linesRes = await fetch(`${apiUrl}/lines/intercity?from=${from}&to=${to}`);
+            if (!linesRes.ok) return { lines: [], stopsByLine: {}, departuresByEntry: {} };
+            const lines = await linesRes.json();
+            if (!lines.length) return { lines: [], stopsByLine: {}, departuresByEntry: {} };
+
+            const stopsByLine = {};
+            const departuresByEntry = {};
+
+            await Promise.all(lines.map(async (line) => {
+                const stopsRes = await fetch(`${apiUrl}/lines-locations/${line.id}`);
+                if (!stopsRes.ok) return;
+                const stops = await stopsRes.json();
+                const sorted = [...stops].sort((a, b) => a.stop_number - b.stop_number);
+                stopsByLine[line.id] = sorted;
+                await Promise.all(sorted.map(async (entry) => {
+                    const depRes = await fetch(`${apiUrl}/lines-locations-departures/${entry.id}`);
+                    departuresByEntry[entry.id] = depRes.ok ? await depRes.json() : [];
+                }));
+            }));
+
+            return { lines, stopsByLine, departuresByEntry };
+        } catch (err) {
+            console.warn(`[SSG] corridor loader failed for ${routePath}:`, err.message);
+            return { lines: [], stopsByLine: {}, departuresByEntry: {} };
+        }
+    }
+
     const match = routePath.match(/^\/red-voznje\/(\d+)$/);
     if (!match) return null;
     const lineId = match[1];

@@ -12,6 +12,9 @@ export class Locations {
     @Column({ length: 255 })
     cyr_name: string;
 
+    @Column({ length: 255, default: 'Zrenjanin' })
+    city: string;
+
     @Column({ type: 'double', nullable: true })
     lat: number | null;
 

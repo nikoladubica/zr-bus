@@ -24,6 +24,9 @@ export class LinesLocationsDepartures {
     })
     day_type: DayType;
 
+    @Column({ type: 'decimal', precision: 6, scale: 2, nullable: true })
+    price: number | null;
+
     @ManyToOne(() => LinesLocations)
     @JoinColumn({ name: 'lines_locations_id' })
     linesLocations: LinesLocations;
