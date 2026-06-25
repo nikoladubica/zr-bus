@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect, lazy, Suspense } from 'react';
 import { useTheme } from '../../context/ThemeContext.jsx';
 import { useScript } from '../../context/ScriptContext.jsx';
+import { useRetro } from '../../context/RetroContext.jsx';
 import useStore from '../../store/client/useStore';
 
 import Header from '../Elements/Header/Header';
@@ -51,6 +52,7 @@ const HOME_JSON_LD = {
 const Home = () => {
     const { theme } = useTheme();
     const { script } = useScript();
+    const { retro } = useRetro();
     const sheetSnap = useStore((state) => state.sheetSnap);
     const snapSheetTo = useStore((state) => state.snapSheetTo);
 
@@ -69,13 +71,15 @@ const Home = () => {
                 jsonLd={HOME_JSON_LD}
             />
             <div
-                className={`flex h-screen w-screen overflow-hidden relative ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}
-                style={{
-                    background:
-                        theme === 'dark'
+                className={`flex h-screen w-screen overflow-hidden relative ${retro ? '' : (theme === 'dark' ? 'text-white' : 'text-gray-900')}`}
+                style={retro
+                    ? { background: '#008080' }
+                    : {
+                        background: theme === 'dark'
                             ? 'linear-gradient(135deg, oklch(27.8% 0.033 256.848) 0%, oklch(22% 0.04 260) 50%, oklch(18% 0.05 270) 100%)'
                             : 'linear-gradient(135deg, oklch(96% 0.01 256) 0%, oklch(93% 0.015 260) 50%, oklch(90% 0.02 270) 100%)',
-                }}
+                    }
+                }
             >
                 <BottomSheet
                     header={<Header />}
@@ -88,11 +92,13 @@ const Home = () => {
 
                 <div className="flex-1 relative h-full">
                     <h1 className="sr-only">ZR Bus - Interaktivna mapa gradskih autobuskih linija u Zrenjaninu</h1>
-                    <p className="absolute top-2 left-1/2 -translate-x-1/2 z-[900] pointer-events-none hidden md:block">
-                        <span className="px-3 py-1 rounded-full text-xs font-semibold tracking-wide backdrop-blur-xl dark:bg-white/10 bg-black/5 dark:border-white/15 border-black/10 border dark:text-white/70 text-gray-600 shadow">
-                            ZR Bus — {script === 'cyrillic' ? 'Градски превоз Зрењанин' : 'Gradski prevoz Zrenjanin'}
-                        </span>
-                    </p>
+                    {!retro && (
+                        <p className="absolute top-2 left-1/2 -translate-x-1/2 z-[900] pointer-events-none hidden md:block">
+                            <span className="px-3 py-1 rounded-full text-xs font-semibold tracking-wide backdrop-blur-xl dark:bg-white/10 bg-black/5 dark:border-white/15 border-black/10 border dark:text-white/70 text-gray-600 shadow">
+                                ZR Bus — {script === 'cyrillic' ? 'Градски превоз Зрењанин' : 'Gradski prevoz Zrenjanin'}
+                            </span>
+                        </p>
+                    )}
                     <ClientOnly fallback={<MapFallback />}>
                         {() => (
                             <Suspense fallback={<MapFallback />}>
@@ -110,7 +116,10 @@ const Home = () => {
                 )}
 
                 <div ref={headerRef} className="md:hidden absolute z-[1000] top-0 left-0 right-0">
-                    <div className="m-1 backdrop-blur-xl dark:bg-white/10 bg-black/5 rounded-3xl dark:border-white/20 border-black/10 border shadow-2xl">
+                    <div className={retro
+                        ? ''
+                        : 'm-1 backdrop-blur-xl dark:bg-white/10 bg-black/5 rounded-3xl dark:border-white/20 border-black/10 border shadow-2xl'
+                    }>
                         <Header />
                     </div>
                 </div>

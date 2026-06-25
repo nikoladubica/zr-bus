@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router';
 import { HelmetProvider } from 'react-helmet-async';
 
 import { ThemeProvider } from './context/ThemeContext.jsx';
+import { RetroProvider } from './context/RetroContext.jsx';
 import { ScriptProvider } from './context/ScriptContext.jsx';
 import './index.css';
 import App from './App.jsx';
@@ -16,9 +17,11 @@ const app = (
         <HelmetProvider>
             <BrowserRouter>
                 <ThemeProvider>
-                    <ScriptProvider>
-                        <App />
-                    </ScriptProvider>
+                    <RetroProvider>
+                        <ScriptProvider>
+                            <App />
+                        </ScriptProvider>
+                    </RetroProvider>
                 </ThemeProvider>
             </BrowserRouter>
         </HelmetProvider>

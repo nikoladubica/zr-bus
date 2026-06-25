@@ -14,10 +14,12 @@ import { getClosestStation } from '../../../utils/helpers';
 import useStore from '../../../store/client/useStore';
 import { useScript } from '../../../context/ScriptContext.jsx';
 import { useTheme } from '../../../context/ThemeContext.jsx';
+import { useRetro } from '../../../context/RetroContext.jsx';
 
 const Map = () => {
     const { script } = useScript();
     const { theme } = useTheme();
+    const { retro } = useRetro();
     const data = useStore((state) => state.data);
     const line = useStore((state) => state.line);
     const linesLocations = useStore((state) => state.linesLocations);
@@ -118,13 +120,15 @@ const Map = () => {
             >
                 <MapChangeView center={mapCenter} zoom={mapZoom} />
                 <TileLayer
-                    key={theme}
+                    key={retro ? 'retro' : theme}
                     url={
-                        theme === 'dark'
-                            ? 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png'
-                            : 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png'
+                        retro
+                            ? 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+                            : (theme === 'dark'
+                                ? 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png'
+                                : 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png')
                     }
-                    subdomains={theme === 'light' ? ['a', 'b', 'c'] : []}
+                    subdomains={retro || theme === 'light' ? ['a', 'b', 'c'] : []}
                 />
 
                 {/* Bus Stops */}

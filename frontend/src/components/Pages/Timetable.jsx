@@ -5,6 +5,7 @@ import Header from '../Elements/Header/Header';
 import PageHead from '../Elements/PageHead';
 import { useScript } from '../../context/ScriptContext.jsx';
 import { useTheme } from '../../context/ThemeContext.jsx';
+import { useRetro } from '../../context/RetroContext.jsx';
 import { useSSGData } from '../../context/SSGDataContext.jsx';
 import useStore from '../../store/client/useStore';
 import { LINES_LOCATIONS, LINES_LOCATIONS_DEPARTURES } from '../../utils/api';
@@ -87,6 +88,7 @@ const Timetable = () => {
     const { lineId } = useParams();
     const { script } = useScript();
     const { theme } = useTheme();
+    const { retro } = useRetro();
     const isCyrillic = script === 'cyrillic';
     const ssgData = useSSGData();
 
@@ -239,28 +241,29 @@ const Timetable = () => {
                 jsonLd={jsonLd}
             />
             <div
-                className={`flex flex-col h-screen dark:bg-[#222222] bg-white/95 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}
+                className={`flex flex-col h-screen ${retro ? '' : (`dark:bg-[#222222] bg-white/95 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`)}`}
+                style={retro ? { background: '#c0c0c0' } : {}}
             >
-                <div className="shrink-0 border-b dark:border-white/10 border-black/10">
+                <div className={retro ? 'shrink-0 border-b border-[#808080]' : 'shrink-0 border-b dark:border-white/10 border-black/10'}>
                     <Header />
                 </div>
 
-                <div className="flex-1 overflow-y-auto overscroll-contain [scrollbar-gutter:stable]">
+                <div className={`flex-1 overflow-y-auto overscroll-contain [scrollbar-gutter:stable] ${retro ? 'retro-scroll' : ''}`}>
                     <div className="max-w-3xl w-full mx-auto px-4 py-6 flex flex-col gap-6">
                         <NavLink
                             to="/"
-                            className="self-start text-sm dark:text-white/50 text-gray-500 dark:hover:text-white/80 hover:text-gray-800 transition-colors"
+                            className={retro ? 'self-start text-sm' : 'self-start text-sm dark:text-white/50 text-gray-500 dark:hover:text-white/80 hover:text-gray-800 transition-colors'}
                         >
                             ← {isCyrillic ? 'Почетна' : 'Početna'}
                         </NavLink>
 
-                        <h1 className="text-xl font-bold dark:text-white text-gray-900 text-left">
+                        <h1 className={retro ? 'text-xl font-bold text-left' : 'text-xl font-bold dark:text-white text-gray-900 text-left'}>
                             {isCyrillic ? 'Редови вожње' : 'Redovi vožnje'}
                         </h1>
 
                         {data.length > 0 && (
                             <div className="flex flex-col gap-2">
-                                <p className="text-xs font-medium text-left uppercase tracking-wide dark:text-white/40 text-gray-400">
+                                <p className={retro ? 'text-xs font-medium text-left uppercase tracking-wide' : 'text-xs font-medium text-left uppercase tracking-wide dark:text-white/40 text-gray-400'}>
                                     {isCyrillic
                                         ? 'Изаберите линију'
                                         : 'Izaberite liniju'}
@@ -277,17 +280,17 @@ const Timetable = () => {
                                                 onClick={() =>
                                                     handleLineSelect(line.line_id)
                                                 }
-                                                className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-semibold shrink-0 transition-all select-none ${
-                                                    isActive
-                                                        ? 'text-white shadow-sm'
-                                                        : 'dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border dark:text-white text-gray-800 dark:hover:bg-white/10 hover:bg-black/10'
-                                                }`}
+                                                className={retro
+                                                    ? `win-btn flex items-center gap-1.5 shrink-0 select-none ${isActive ? 'pressed' : ''}`
+                                                    : `flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-semibold shrink-0 transition-all select-none ${
+                                                        isActive
+                                                            ? 'text-white shadow-sm'
+                                                            : 'dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border dark:text-white text-gray-800 dark:hover:bg-white/10 hover:bg-black/10'
+                                                    }`
+                                                }
                                                 style={
-                                                    isActive
-                                                        ? {
-                                                              backgroundColor:
-                                                                  line.hex_color,
-                                                          }
+                                                    isActive && !retro
+                                                        ? { backgroundColor: line.hex_color }
                                                         : {}
                                                 }
                                             >
@@ -296,7 +299,7 @@ const Timetable = () => {
                                                     style={{
                                                         backgroundColor: !isActive
                                                             ? line.hex_color
-                                                            : '#ffffff',
+                                                            : (retro ? line.hex_color : '#ffffff'),
                                                     }}
                                                 />
                                                 {line.number}
@@ -321,18 +324,17 @@ const Timetable = () => {
                                                             dir.line_id,
                                                         )
                                                     }
-                                                    className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium shrink-0 transition-colors border select-none ${
-                                                        isDirActive
-                                                            ? 'text-white border-transparent'
-                                                            : 'dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 dark:text-white/60 text-gray-500 dark:hover:bg-white/10 hover:bg-black/10'
-                                                    }`}
+                                                    className={retro
+                                                        ? `win-btn flex items-center gap-1 shrink-0 select-none ${isDirActive ? 'pressed' : ''}`
+                                                        : `flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium shrink-0 transition-colors border select-none ${
+                                                            isDirActive
+                                                                ? 'text-white border-transparent'
+                                                                : 'dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 dark:text-white/60 text-gray-500 dark:hover:bg-white/10 hover:bg-black/10'
+                                                        }`
+                                                    }
                                                     style={
-                                                        isDirActive
-                                                            ? {
-                                                                  backgroundColor:
-                                                                      activeGroup[0]
-                                                                          .hex_color,
-                                                              }
+                                                        isDirActive && !retro
+                                                            ? { backgroundColor: activeGroup[0].hex_color }
                                                             : {}
                                                     }
                                                 >
@@ -358,11 +360,14 @@ const Timetable = () => {
                                         <button
                                             key={tab}
                                             onClick={() => setActiveTab(tab)}
-                                            className={`px-4 py-2 rounded-full text-xs font-medium transition-colors ${
-                                                activeTab === tab
-                                                    ? 'dark:bg-white/15 bg-black/10 dark:text-white text-gray-900'
-                                                    : 'dark:text-white/40 text-gray-400 dark:hover:bg-white/5 hover:bg-black/5'
-                                            }`}
+                                            className={retro
+                                                ? `win-btn ${activeTab === tab ? 'pressed' : ''}`
+                                                : `px-4 py-2 rounded-full text-xs font-medium transition-colors ${
+                                                    activeTab === tab
+                                                        ? 'dark:bg-white/15 bg-black/10 dark:text-white text-gray-900'
+                                                        : 'dark:text-white/40 text-gray-400 dark:hover:bg-white/5 hover:bg-black/5'
+                                                }`
+                                            }
                                         >
                                             {DAY_LABELS[script]?.[tab] ??
                                                 DAY_LABELS.latin[tab]}
@@ -372,7 +377,7 @@ const Timetable = () => {
                             )}
 
                             {isLoading && (
-                                <p className="text-sm dark:text-white/40 text-gray-400 py-8 text-center">
+                                <p className={retro ? 'text-sm py-8 text-center' : 'text-sm dark:text-white/40 text-gray-400 py-8 text-center'}>
                                     {isCyrillic ? 'Учитавање...' : 'Učitavanje...'}
                                 </p>
                             )}
@@ -384,13 +389,16 @@ const Timetable = () => {
                                         return (
                                             <div
                                                 key={stop.id}
-                                                className="flex flex-col gap-1.5 px-4 py-3 rounded-xl dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border"
+                                                className={retro
+                                                    ? 'retro-card flex flex-col gap-1.5'
+                                                    : 'flex flex-col gap-1.5 px-4 py-3 rounded-xl dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border'
+                                                }
                                             >
                                                 <div className="flex items-baseline gap-2">
-                                                    <span className="text-xs dark:text-white/30 text-gray-400 shrink-0 w-5 text-right">
+                                                    <span className={retro ? 'text-xs shrink-0 w-5 text-right' : 'text-xs dark:text-white/30 text-gray-400 shrink-0 w-5 text-right'}>
                                                         {idx + 1}.
                                                     </span>
-                                                    <span className="text-sm font-medium dark:text-white text-gray-900">
+                                                    <span className={retro ? 'text-sm font-medium' : 'text-sm font-medium dark:text-white text-gray-900'}>
                                                         {stopName(stop.locations)}
                                                     </span>
                                                 </div>
@@ -399,14 +407,17 @@ const Timetable = () => {
                                                         {times.map((t, i) => (
                                                             <span
                                                                 key={`${t}-${i}`}
-                                                                className="text-xs px-2 py-0.5 rounded-md dark:bg-white/8 bg-black/5 dark:border-white/10 border-black/10 border dark:text-white/70 text-gray-600 font-mono"
+                                                                className={retro
+                                                                    ? 'win-btn text-xs font-mono'
+                                                                    : 'text-xs px-2 py-0.5 rounded-md dark:bg-white/8 bg-black/5 dark:border-white/10 border-black/10 border dark:text-white/70 text-gray-600 font-mono'
+                                                                }
                                                             >
                                                                 {t}
                                                             </span>
                                                         ))}
                                                     </div>
                                                 ) : (
-                                                    <p className="pl-7 text-xs dark:text-white/25 text-gray-400">
+                                                    <p className={retro ? 'pl-7 text-xs' : 'pl-7 text-xs dark:text-white/25 text-gray-400'}>
                                                         —
                                                     </p>
                                                 )}
@@ -417,7 +428,7 @@ const Timetable = () => {
                             )}
 
                             {!isLoading && selectedLineId && stops.length === 0 && (
-                                <p className="text-sm dark:text-white/40 text-gray-400 py-8 text-center">
+                                <p className={retro ? 'text-sm py-8 text-center' : 'text-sm dark:text-white/40 text-gray-400 py-8 text-center'}>
                                     {isCyrillic
                                         ? 'Нема података о станицама.'
                                         : 'Nema podataka o stanicama.'}

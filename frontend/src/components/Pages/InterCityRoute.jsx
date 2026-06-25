@@ -5,6 +5,7 @@ import 'leaflet/dist/leaflet.css';
 
 import { useTheme } from '../../context/ThemeContext.jsx';
 import { useScript } from '../../context/ScriptContext.jsx';
+import { useRetro } from '../../context/RetroContext.jsx';
 import { useSSGData } from '../../context/SSGDataContext.jsx';
 import Header from '../Elements/Header/Header';
 import PageHead from '../Elements/PageHead';
@@ -88,6 +89,7 @@ async function fetchCorridorData(apiUrl, from, to) {
 
 const CorridorMap = ({ lines, stopsByLine, activeLineId }) => {
     const { theme } = useTheme();
+    const { retro } = useRetro();
     const activeLine = lines.find((l) => l.id === activeLineId) ?? lines[0];
     const activeStops = activeLine ? (stopsByLine[activeLine.id] ?? []) : [];
 
@@ -97,6 +99,12 @@ const CorridorMap = ({ lines, stopsByLine, activeLineId }) => {
             .filter(Boolean);
         return coords.length >= 2 ? coords : null;
     }, [activeStops]);
+
+    const tileUrl = retro
+        ? 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+        : (theme === 'dark'
+            ? 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png'
+            : 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png');
 
     return (
         <MapContainer
@@ -108,13 +116,9 @@ const CorridorMap = ({ lines, stopsByLine, activeLineId }) => {
         >
             {bounds && <FitBoundsView bounds={bounds} />}
             <TileLayer
-                key={theme}
-                url={
-                    theme === 'dark'
-                        ? 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png'
-                        : 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png'
-                }
-                subdomains={theme === 'light' ? ['a', 'b', 'c'] : []}
+                key={retro ? 'retro' : theme}
+                url={tileUrl}
+                subdomains={!retro && theme === 'light' ? ['a', 'b', 'c'] : []}
             />
             {activeStops.map((entry) => {
                 const loc = entry?.locations;
@@ -144,6 +148,7 @@ const CorridorMap = ({ lines, stopsByLine, activeLineId }) => {
 };
 
 const InterCitySheetContent = ({ config, lines, stopsByLine, departuresByEntry, activeLineId, setActiveLineId, isCyrillic }) => {
+    const { retro } = useRetro();
     const activeLine = lines.find((l) => l.id === activeLineId) ?? lines[0];
     const stops = activeLine ? (stopsByLine[activeLine.id] ?? []) : [];
     const [activeTab, setActiveTab] = useState(todayDayType);
@@ -158,23 +163,25 @@ const InterCitySheetContent = ({ config, lines, stopsByLine, departuresByEntry, 
 
     return (
         <div className="flex flex-col h-full">
-            {/* Header bar — same design as StopDetailView */}
-            <div className="flex items-center gap-2 p-2 px-4 border-b dark:border-white/10 border-black/10 shrink-0">
+            <div className={`flex items-center gap-2 p-2 px-4 shrink-0 ${retro ? 'border-b border-[#808080]' : 'border-b dark:border-white/10 border-black/10'}`}>
                 <Link
                     to="/"
-                    className="button-look w-8 h-8 flex items-center justify-center rounded-xl dark:hover:bg-white/10 hover:bg-black/5 transition-colors dark:text-white/60! text-gray-500! shrink-0"
+                    className={retro
+                        ? 'win-btn w-8 h-8 flex items-center justify-center shrink-0'
+                        : 'button-look w-8 h-8 flex items-center justify-center rounded-xl dark:hover:bg-white/10 hover:bg-black/5 transition-colors dark:text-white/60! text-gray-500! shrink-0'
+                    }
                     aria-label={isCyrillic ? 'Почетна' : 'Početna'}
                 >
                     ←
                 </Link>
                 <div className="flex flex-col flex-1 min-w-0">
-                    <p className="font-semibold text-sm dark:text-white text-gray-900 truncate">
+                    <p className={retro ? 'font-semibold text-sm truncate' : 'font-semibold text-sm dark:text-white text-gray-900 truncate'}>
                         {isCyrillic
                             ? (activeLine?.cyr_name ?? `${config.fromLabel} – ${config.toLabel}`)
                             : (activeLine?.lat_name ?? `${config.fromLabel} – ${config.toLabel}`)}
                     </p>
                     {activeLine?.operator && (
-                        <p className="text-xs dark:text-white/40 text-gray-500">{activeLine.operator}</p>
+                        <p className={retro ? 'text-xs' : 'text-xs dark:text-white/40 text-gray-500'}>{activeLine.operator}</p>
                     )}
                 </div>
             </div>
@@ -189,12 +196,15 @@ const InterCitySheetContent = ({ config, lines, stopsByLine, departuresByEntry, 
                                 <button
                                     key={dir.id}
                                     onClick={() => setActiveLineId(dir.id)}
-                                    className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium shrink-0 transition-colors border select-none ${
-                                        isDirActive
-                                            ? 'text-white border-transparent'
-                                            : 'dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 dark:text-white/60 text-gray-500 dark:hover:bg-white/10 hover:bg-black/10'
-                                    }`}
-                                    style={isDirActive ? { backgroundColor: lines[0].hex_color } : {}}
+                                    className={retro
+                                        ? `win-btn flex items-center gap-1 shrink-0 select-none ${isDirActive ? 'pressed' : ''}`
+                                        : `flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium shrink-0 transition-colors border select-none ${
+                                            isDirActive
+                                                ? 'text-white border-transparent'
+                                                : 'dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 dark:text-white/60 text-gray-500 dark:hover:bg-white/10 hover:bg-black/10'
+                                        }`
+                                    }
+                                    style={isDirActive && !retro ? { backgroundColor: lines[0].hex_color } : {}}
                                 >
                                     <span className="opacity-60">→</span>
                                     {destLabel(name, dir.direction)}
@@ -210,11 +220,14 @@ const InterCitySheetContent = ({ config, lines, stopsByLine, departuresByEntry, 
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
-                            className={`px-4 py-2 rounded-full text-xs font-medium transition-colors ${
-                                activeTab === tab
-                                    ? 'dark:bg-white/15 bg-black/10 dark:text-white text-gray-900'
-                                    : 'dark:text-white/40 text-gray-400 dark:hover:bg-white/5 hover:bg-black/5'
-                            }`}
+                            className={retro
+                                ? `win-btn ${activeTab === tab ? 'pressed' : ''}`
+                                : `px-4 py-2 rounded-full text-xs font-medium transition-colors ${
+                                    activeTab === tab
+                                        ? 'dark:bg-white/15 bg-black/10 dark:text-white text-gray-900'
+                                        : 'dark:text-white/40 text-gray-400 dark:hover:bg-white/5 hover:bg-black/5'
+                                }`
+                            }
                         >
                             {DAY_LABELS[tab] ?? tab}
                         </button>
@@ -223,7 +236,7 @@ const InterCitySheetContent = ({ config, lines, stopsByLine, departuresByEntry, 
             )}
 
             {lines.length === 0 ? (
-                <p className="text-sm dark:text-white/40 text-gray-400 py-8 text-center">
+                <p className={retro ? 'text-sm py-8 text-center' : 'text-sm dark:text-white/40 text-gray-400 py-8 text-center'}>
                     {isCyrillic ? 'Ускоро' : 'Uskoro'}
                 </p>
             ) : (
@@ -236,13 +249,16 @@ const InterCitySheetContent = ({ config, lines, stopsByLine, departuresByEntry, 
                         return (
                             <div
                                 key={entry.id}
-                                className="flex flex-col gap-1.5 px-4 py-3 rounded-xl dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border"
+                                className={retro
+                                    ? 'retro-card flex flex-col gap-1.5'
+                                    : 'flex flex-col gap-1.5 px-4 py-3 rounded-xl dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border'
+                                }
                             >
                                 <div className="flex items-baseline gap-2">
-                                    <span className="text-xs dark:text-white/30 text-gray-400 shrink-0 w-5 text-right">
+                                    <span className={retro ? 'text-xs shrink-0 w-5 text-right' : 'text-xs dark:text-white/30 text-gray-400 shrink-0 w-5 text-right'}>
                                         {idx + 1}.
                                     </span>
-                                    <span className="text-sm font-medium dark:text-white text-gray-900">
+                                    <span className={retro ? 'text-sm font-medium' : 'text-sm font-medium dark:text-white text-gray-900'}>
                                         {stopName(entry.locations)}
                                     </span>
                                 </div>
@@ -251,14 +267,17 @@ const InterCitySheetContent = ({ config, lines, stopsByLine, departuresByEntry, 
                                         {deps.map((t, i) => (
                                             <span
                                                 key={`${t}-${i}`}
-                                                className="text-xs px-2 py-0.5 rounded-md dark:bg-white/8 bg-black/5 dark:border-white/10 border-black/10 border dark:text-white/70 text-gray-600 font-mono"
+                                                className={retro
+                                                    ? 'win-btn text-xs font-mono'
+                                                    : 'text-xs px-2 py-0.5 rounded-md dark:bg-white/8 bg-black/5 dark:border-white/10 border-black/10 border dark:text-white/70 text-gray-600 font-mono'
+                                                }
                                             >
                                                 {t}
                                             </span>
                                         ))}
                                     </div>
                                 ) : (
-                                    <p className="pl-7 text-xs dark:text-white/25 text-gray-400">—</p>
+                                    <p className={retro ? 'pl-7 text-xs' : 'pl-7 text-xs dark:text-white/25 text-gray-400'}>—</p>
                                 )}
                             </div>
                         );
@@ -274,6 +293,7 @@ const InterCityRoute = ({ corridor }) => {
     const config = CORRIDORS[corridor];
     const { theme } = useTheme();
     const { script } = useScript();
+    const { retro } = useRetro();
     const isCyrillic = script === 'cyrillic';
     const ssgData = useSSGData();
 
@@ -345,12 +365,15 @@ const InterCityRoute = ({ corridor }) => {
                 jsonLd={jsonLd}
             />
             <div
-                className={`flex h-screen w-screen overflow-hidden relative ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}
-                style={{
-                    background: theme === 'dark'
-                        ? 'linear-gradient(135deg, oklch(27.8% 0.033 256.848) 0%, oklch(22% 0.04 260) 50%, oklch(18% 0.05 270) 100%)'
-                        : 'linear-gradient(135deg, oklch(96% 0.01 256) 0%, oklch(93% 0.015 260) 50%, oklch(90% 0.02 270) 100%)',
-                }}
+                className={`flex h-screen w-screen overflow-hidden relative ${retro ? '' : (theme === 'dark' ? 'text-white' : 'text-gray-900')}`}
+                style={retro
+                    ? { background: '#008080' }
+                    : {
+                        background: theme === 'dark'
+                            ? 'linear-gradient(135deg, oklch(27.8% 0.033 256.848) 0%, oklch(22% 0.04 260) 50%, oklch(18% 0.05 270) 100%)'
+                            : 'linear-gradient(135deg, oklch(96% 0.01 256) 0%, oklch(93% 0.015 260) 50%, oklch(90% 0.02 270) 100%)',
+                    }
+                }
             >
                 <BottomSheet
                     header={<Header />}
@@ -388,7 +411,10 @@ const InterCityRoute = ({ corridor }) => {
                 )}
 
                 <div ref={headerRef} className="md:hidden absolute z-[1000] top-0 left-0 right-0">
-                    <div className="m-1 backdrop-blur-xl dark:bg-white/10 bg-black/5 rounded-3xl dark:border-white/20 border-black/10 border shadow-2xl">
+                    <div className={retro
+                        ? ''
+                        : 'm-1 backdrop-blur-xl dark:bg-white/10 bg-black/5 rounded-3xl dark:border-white/20 border-black/10 border shadow-2xl'
+                    }>
                         <Header />
                     </div>
                 </div>

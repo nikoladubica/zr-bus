@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router';
 import useStore from '../../store/client/useStore';
 import { useScript } from '../../context/ScriptContext.jsx';
+import { useRetro } from '../../context/RetroContext.jsx';
 import StopDetailView from './StopDetailView';
 import SearchView from './SearchView';
 import TripPlannerView from './TripPlannerView';
@@ -17,6 +18,7 @@ const INTERCITY_CORRIDORS = [
 
 const HomeSheetContent = () => {
     const { script } = useScript();
+    const { retro } = useRetro();
     const isCyrillic = script === 'cyrillic';
 
     const isSearchOpen = useStore((s) => s.isSearchOpen);
@@ -97,36 +99,48 @@ const HomeSheetContent = () => {
         <div className="flex flex-col gap-5 p-4 pb-8">
 
             {/* ── SEARCH PILL ── */}
-            <div className="rounded-2xl dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border overflow-hidden">
-                <div className="flex border-b dark:border-white/10 border-black/10">
+            <div className={retro
+                ? 'retro-card overflow-hidden'
+                : 'rounded-2xl dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border overflow-hidden'
+            }>
+                <div className={`flex ${retro ? 'border-b border-[#808080]' : 'border-b dark:border-white/10 border-black/10'}`}>
                     <button
                         onClick={() => openSearch('stanica')}
-                        className={`flex-1 py-2 text-xs font-medium transition-colors border-r dark:border-white/10 border-black/10 rounded-none! rounded-tl-2xl! ${
-                            searchMode === 'stanica'
-                                ? 'dark:text-white text-gray-900'
-                                : 'dark:text-white/40 text-gray-400 dark:hover:text-white/60 hover:text-gray-600'
-                        }`}
+                        className={retro
+                            ? `win-btn flex-1 rounded-none! ${searchMode === 'stanica' ? 'pressed' : ''}`
+                            : `flex-1 py-2 text-xs font-medium transition-colors border-r dark:border-white/10 border-black/10 rounded-none! rounded-tl-2xl! ${
+                                searchMode === 'stanica'
+                                    ? 'dark:text-white text-gray-900'
+                                    : 'dark:text-white/40 text-gray-400 dark:hover:text-white/60 hover:text-gray-600'
+                            }`
+                        }
                     >
                         {isCyrillic ? 'Станица' : 'Stanica'}
                     </button>
                     <button
                         onClick={() => openSearch('ruta')}
-                        className={`flex-1 py-2 text-xs font-medium transition-colors rounded-none! rounded-tr-2xl! ${
-                            searchMode === 'ruta'
-                                ? 'dark:text-white text-gray-900'
-                                : 'dark:text-white/40 text-gray-400 dark:hover:text-white/60 hover:text-gray-600'
-                        }`}
+                        className={retro
+                            ? `win-btn flex-1 rounded-none! ${searchMode === 'ruta' ? 'pressed' : ''}`
+                            : `flex-1 py-2 text-xs font-medium transition-colors rounded-none! rounded-tr-2xl! ${
+                                searchMode === 'ruta'
+                                    ? 'dark:text-white text-gray-900'
+                                    : 'dark:text-white/40 text-gray-400 dark:hover:text-white/60 hover:text-gray-600'
+                            }`
+                        }
                     >
                         {isCyrillic ? 'Рута' : 'Ruta'}
                     </button>
                 </div>
                 <button
                     onClick={() => openSearch(searchMode)}
-                    className="flex items-center gap-3 w-full px-4 py-3 dark:hover:bg-white/8 hover:bg-black/8 transition-colors text-left rounded-none! rounded-b-2xl!"
+                    className={retro
+                        ? 'win-btn flex items-center gap-3 w-full px-4 py-3 text-left rounded-none!'
+                        : 'flex items-center gap-3 w-full px-4 py-3 dark:hover:bg-white/8 hover:bg-black/8 transition-colors text-left rounded-none! rounded-b-2xl!'
+                    }
                     aria-label={isCyrillic ? 'Отвори претрагу' : 'Otvori pretragu'}
                 >
-                    <span className="text-base dark:text-white/30 text-gray-400">⌕</span>
-                    <span className="text-sm dark:text-white/40 text-gray-400 flex-1">
+                    <span className={retro ? 'text-base' : 'text-base dark:text-white/30 text-gray-400'}>⌕</span>
+                    <span className={retro ? 'text-sm flex-1' : 'text-sm dark:text-white/40 text-gray-400 flex-1'}>
                         {searchMode === 'ruta'
                             ? (isCyrillic ? 'Планирај руту А → Б' : 'Planiraj rutu A → B')
                             : (isCyrillic ? 'Претражи станицу / линију' : 'Pretraži stanicu / liniju')}
@@ -137,19 +151,22 @@ const HomeSheetContent = () => {
             {/* ── NEXT BUS ── */}
             {closestStopInfo && (
                 <div className="flex flex-col gap-1.5">
-                    <p className="text-xs font-medium uppercase tracking-wide dark:text-white/40 text-gray-400 text-left">
+                    <p className={retro ? 'win-label text-left' : 'text-xs font-medium uppercase tracking-wide dark:text-white/40 text-gray-400 text-left'}>
                         {isCyrillic ? 'Следећи аутобус' : 'Sledeći autobus'}
                     </p>
                     <div
                         onClick={() => fetchStopDepartures(closestStopInfo.locationId)}
-                        className="rounded-2xl dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border p-3 flex flex-col gap-2 cursor-pointer transition-colors hover:border-[#646cff] dark:hover:border-[#646cff]"
+                        className={retro
+                            ? 'retro-card flex flex-col gap-2 cursor-pointer'
+                            : 'rounded-2xl dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border p-3 flex flex-col gap-2 cursor-pointer transition-colors hover:border-[#646cff] dark:hover:border-[#646cff]'
+                        }
                     >
                         <div className="flex items-start justify-between gap-2">
                             <div>
-                                <p className="font-semibold text-sm dark:text-white text-gray-900 leading-snug">
+                                <p className={retro ? 'font-semibold text-sm leading-snug' : 'font-semibold text-sm dark:text-white text-gray-900 leading-snug'}>
                                     {stopName(closestStopInfo.location)}
                                 </p>
-                                <p className="text-xs dark:text-white/40 text-gray-500 mt-0.5 text-left">
+                                <p className={retro ? 'text-xs mt-0.5 text-left' : 'text-xs dark:text-white/40 text-gray-500 mt-0.5 text-left'}>
                                     {formatDist(closestStopInfo.distance)}
                                 </p>
                             </div>
@@ -166,17 +183,17 @@ const HomeSheetContent = () => {
 
                         {closestFlat.length > 0 && (
                             <div className="flex items-baseline gap-2 flex-wrap">
-                                <span className="text-base font-bold dark:text-white text-gray-900">
+                                <span className={retro ? 'text-base font-bold' : 'text-base font-bold dark:text-white text-gray-900'}>
                                     {nextMinutes !== null ? (
                                         <>▶ {countdownLabel(nextMinutes, isCyrillic)}</>
                                     ) : (
-                                        <span className="text-sm font-normal dark:text-white/40 text-gray-400">
+                                        <span className={retro ? 'text-sm font-normal' : 'text-sm font-normal dark:text-white/40 text-gray-400'}>
                                             {isCyrillic ? 'нема полазака' : 'nema polazaka'}
                                         </span>
                                     )}
                                 </span>
                                 {following.length > 0 && nextMinutes !== null && (
-                                    <span className="text-xs dark:text-white/40 text-gray-400">
+                                    <span className={retro ? 'text-xs' : 'text-xs dark:text-white/40 text-gray-400'}>
                                         {isCyrillic ? 'па' : 'pa'} {following.join(' · ')}
                                     </span>
                                 )}
@@ -191,7 +208,7 @@ const HomeSheetContent = () => {
 
             {/* ── MEĐUGRADSKI ── */}
             <div className="flex flex-col gap-1.5">
-                <p className="text-xs font-medium uppercase tracking-wide dark:text-white/40 text-gray-400 text-left">
+                <p className={retro ? 'win-label text-left' : 'text-xs font-medium uppercase tracking-wide dark:text-white/40 text-gray-400 text-left'}>
                     {isCyrillic ? 'Мeђугрaдски' : 'Međugradski'}
                 </p>
                 <div className="flex flex-col gap-1">
@@ -199,7 +216,10 @@ const HomeSheetContent = () => {
                         <Link
                             key={c.slug}
                             to={`/autobus/${c.slug}`}
-                            className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border dark:hover:bg-white/10 hover:bg-black/10 transition-colors"
+                            className={retro
+                                ? 'win-btn w-full flex items-center justify-between gap-3'
+                                : 'flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border dark:hover:bg-white/10 hover:bg-black/10 transition-colors'
+                            }
                         >
                             <div className="flex items-center gap-2.5">
                                 <span
@@ -207,17 +227,17 @@ const HomeSheetContent = () => {
                                     style={{ backgroundColor: c.color }}
                                 />
                                 <div className="flex flex-col">
-                                    <span className="text-sm dark:text-white text-gray-900">
+                                    <span className={retro ? 'text-sm' : 'text-sm dark:text-white text-gray-900'}>
                                         {isCyrillic ? c.cyr : c.lat}
                                     </span>
                                     {c.operator && (
-                                        <span className="text-xs dark:text-white/40 text-gray-400">
+                                        <span className={retro ? 'text-xs' : 'text-xs dark:text-white/40 text-gray-400'}>
                                             {c.operator}
                                         </span>
                                     )}
                                 </div>
                             </div>
-                            <span className="text-xs dark:text-white/30 text-gray-400">→</span>
+                            <span className={retro ? 'text-xs' : 'text-xs dark:text-white/30 text-gray-400'}>→</span>
                         </Link>
                     ))}
                 </div>
@@ -226,12 +246,19 @@ const HomeSheetContent = () => {
             {/* ── STANICE U BLIZINI ── always rendered */}
             {nearbyStops.length > 0 && (
                 <div className="flex flex-col gap-1.5">
-                    <p className="text-xs font-medium uppercase tracking-wide dark:text-white/40 text-gray-400 text-left">
+                    <p className={retro ? 'win-label text-left' : 'text-xs font-medium uppercase tracking-wide dark:text-white/40 text-gray-400 text-left'}>
                         {isCyrillic ? 'Станице у близини' : 'Stanice u blizini'}
                     </p>
                     <div className="flex flex-col gap-1">
                         {nearbyStops.map((stop) => (
-                            <div key={stop.locationId} onClick={() => fetchStopDepartures(stop.locationId)} className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border cursor-pointer hover:border-[#646cff] dark:hover:border-[#646cff] transition-colors">
+                            <div
+                                key={stop.locationId}
+                                onClick={() => fetchStopDepartures(stop.locationId)}
+                                className={retro
+                                    ? 'retro-card flex items-center justify-between gap-3 cursor-pointer'
+                                    : 'flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border cursor-pointer hover:border-[#646cff] dark:hover:border-[#646cff] transition-colors'
+                                }
+                            >
                                 <button
                                     onClick={(e) => { e.stopPropagation(); toggleFavourite(stop.locationId); }}
                                     className="text-base leading-none shrink-0 transition-colors"
@@ -242,7 +269,7 @@ const HomeSheetContent = () => {
                                     </span>
                                 </button>
                                 <div className="flex flex-col items-start justify-start w-full">
-                                    <span className="text-sm dark:text-white text-gray-900 truncate flex-1 text-left">
+                                    <span className={retro ? 'text-sm truncate flex-1 text-left' : 'text-sm dark:text-white text-gray-900 truncate flex-1 text-left'}>
                                         {stopName(stop.location)}
                                     </span>
                                     <div className="flex items-center gap-2">
@@ -258,7 +285,7 @@ const HomeSheetContent = () => {
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2 shrink-0">
-                                    <span className="text-xs dark:text-white/40 text-gray-400">
+                                    <span className={retro ? 'text-xs' : 'text-xs dark:text-white/40 text-gray-400'}>
                                         {formatDist(stop.distance)}
                                     </span>
                                 </div>
@@ -271,7 +298,7 @@ const HomeSheetContent = () => {
             {/* ── OMILJENE ── always rendered if user has favourites */}
             {favouriteStops.length > 0 && (
                 <div className="flex flex-col gap-1.5">
-                    <p className="text-xs font-medium uppercase tracking-wide dark:text-white/40 text-gray-400 text-left">
+                    <p className={retro ? 'win-label text-left' : 'text-xs font-medium uppercase tracking-wide dark:text-white/40 text-gray-400 text-left'}>
                         {isCyrillic ? 'Омиљене' : 'Omiljene'}
                     </p>
                     <div className="flex flex-col gap-1">
@@ -281,7 +308,10 @@ const HomeSheetContent = () => {
                             return (
                                 <div
                                     key={stop.locationId}
-                                    className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border"
+                                    className={retro
+                                        ? 'retro-card flex items-center justify-between gap-3'
+                                        : 'flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border'
+                                    }
                                 >
                                     <div className="flex items-center gap-2 min-w-0">
                                         {linesForEntries(stop.entries).map((l) => (
@@ -291,11 +321,11 @@ const HomeSheetContent = () => {
                                                 style={{ backgroundColor: l.color }}
                                             />
                                         ))}
-                                        <span className="text-sm dark:text-white text-gray-900 truncate">
+                                        <span className={retro ? 'text-sm truncate' : 'text-sm dark:text-white text-gray-900 truncate'}>
                                             {stopName(stop.location)}
                                         </span>
                                     </div>
-                                    <span className="text-xs font-medium shrink-0 dark:text-white/60 text-gray-500">
+                                    <span className={retro ? 'text-xs font-medium shrink-0' : 'text-xs font-medium shrink-0 dark:text-white/60 text-gray-500'}>
                                         {deps.length > 0 ? countdownLabel(mins, isCyrillic) : '—'}
                                     </span>
                                 </div>

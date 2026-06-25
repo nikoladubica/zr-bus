@@ -84,6 +84,113 @@ button:focus-visible {
     outline: 4px auto -webkit-focus-ring-color;
 }
 
+/* === retro public site === */
+
+.retro {
+    background-color: #008080;
+}
+
+.retro body {
+    font-family: Tahoma, 'MS Sans Serif', sans-serif;
+}
+
+.retro-card {
+    background: #d4d0c8;
+    border-top: 2px solid #ffffff;
+    border-left: 2px solid #ffffff;
+    border-right: 2px solid #808080;
+    border-bottom: 2px solid #808080;
+    border-radius: 0;
+    padding: 8px;
+    color: #000000;
+}
+
+.retro-card p,
+.retro-card span,
+.retro-card h2 {
+    color: #000000;
+    font-family: Tahoma, 'MS Sans Serif', sans-serif;
+}
+
+.retro-card h2 {
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+.retro-card p {
+    font-size: 11px;
+}
+
+.retro-panel {
+    background: #d4d0c8;
+    border-top: 2px solid #ffffff;
+    border-left: 2px solid #ffffff;
+    border-right: 2px solid #808080;
+    border-bottom: 2px solid #808080;
+    border-radius: 0;
+}
+
+.retro-titlebar {
+    background: linear-gradient(to right, #0a246a, #3a6ea8);
+    color: #ffffff;
+    font-family: Tahoma, 'MS Sans Serif', sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 3px 6px;
+    border-radius: 0;
+}
+
+.retro-handle {
+    background: #d4d0c8;
+    width: 48px;
+    height: 8px;
+    border-top: 2px solid #ffffff;
+    border-left: 2px solid #ffffff;
+    border-right: 2px solid #808080;
+    border-bottom: 2px solid #808080;
+    border-radius: 0;
+}
+
+.retro-panel::-webkit-scrollbar,
+.retro-scroll::-webkit-scrollbar {
+    width: 16px;
+}
+.retro-panel::-webkit-scrollbar-track,
+.retro-scroll::-webkit-scrollbar-track {
+    background-color: #c0c0c0;
+    background-image: repeating-conic-gradient(#c0c0c0 0% 25%, #ffffff 0% 50%);
+    background-size: 4px 4px;
+}
+.retro-panel::-webkit-scrollbar-thumb,
+.retro-scroll::-webkit-scrollbar-thumb {
+    background: #d4d0c8;
+    border-top: 2px solid #ffffff;
+    border-left: 2px solid #ffffff;
+    border-right: 2px solid #808080;
+    border-bottom: 2px solid #808080;
+    min-height: 20px;
+}
+.retro-panel::-webkit-scrollbar-button,
+.retro-scroll::-webkit-scrollbar-button {
+    display: block;
+    background: #d4d0c8;
+    border-top: 2px solid #ffffff;
+    border-left: 2px solid #ffffff;
+    border-right: 2px solid #808080;
+    border-bottom: 2px solid #808080;
+    height: 16px;
+}
+.retro-panel::-webkit-scrollbar-button:active,
+.retro-scroll::-webkit-scrollbar-button:active {
+    border-top: 2px solid #808080;
+    border-left: 2px solid #808080;
+    border-right: 2px solid #ffffff;
+    border-bottom: 2px solid #ffffff;
+}
+
+/* === end retro public site === */
+
 /* === admin retro === */
 .win-btn {
   background-color: #d4d0c8;
