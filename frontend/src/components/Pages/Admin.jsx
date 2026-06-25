@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { MapContainer, Marker, TileLayer, useMapEvents } from 'react-leaflet';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 
 import ToastContainer, { ToastProvider, useToast } from '../UI/Toast';
 import { DEPARTURES_API, LINES_API, LINES_LOCATIONS_API, LOCATIONS_API, authFetch } from '../../utils/api';
@@ -778,10 +778,10 @@ const AdminInner = () => {
     }, [activeTab]);
 
     return (
-        <div style={{ minHeight: '100vh', width: '100vw', background: '#c0c0c0', fontFamily: "Tahoma, 'MS Sans Serif', sans-serif" }}>
+        <div style={{ height: '100vh', width: '100vw', background: '#c0c0c0', fontFamily: "Tahoma, 'MS Sans Serif', sans-serif", display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <ToastContainer />
-            <div className="win-titlebar" style={{ padding: '4px 8px' }}>
-                <span>ZR-Bus Admin</span>
+            <div className="win-titlebar" style={{ padding: '4px 8px', flexShrink: 0 }}>
+                <Link to={'/'} className='font-bold! text-white!'>ZR-Bus Admin</Link>
                 <div style={{ display: 'flex', gap: 4 }}>
                     <button onClick={() => navigate('/admin/survey')} className="win-btn" style={{ fontSize: 11 }}>
                         Terensko snimanje
@@ -791,9 +791,9 @@ const AdminInner = () => {
                     </button>
                 </div>
             </div>
-            <div style={{ padding: '8px' }}>
-                <div style={{ maxWidth: 720, margin: '0 auto' }}>
-                    <div style={{ display: 'flex', borderBottom: '2px solid #808080', marginBottom: 0 }}>
+            <div style={{ padding: '8px', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <div style={{ maxWidth: 720, margin: '0 auto', width: '100%', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                    <div style={{ display: 'flex', borderBottom: '2px solid #808080', marginBottom: 0, flexShrink: 0 }}>
                         {TABS.map((tab, i) => (
                             <button
                                 key={tab}
@@ -804,7 +804,7 @@ const AdminInner = () => {
                             </button>
                         ))}
                     </div>
-                    <div className="win-panel" style={{ padding: '8px', position: 'relative', zIndex: 0 }}>
+                    <div className="win-panel" style={{ padding: '8px', position: 'relative', zIndex: 0, flex: 1 }}>
                         {tabContent}
                     </div>
                 </div>

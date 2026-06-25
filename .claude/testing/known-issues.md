@@ -190,3 +190,17 @@ Issues spotted during codebase analysis but not yet in scope of any ticket. Agen
 - File: `frontend/src/components/Pages/InterCityRoute.jsx` — `const config = CORRIDORS[corridor]`
 - If `corridor` is not in the `CORRIDORS` config map, `config` is `undefined` and `config.title` throws on first render. Routes in `App.jsx` are hardcoded so this won't happen in normal usage, but a typo in App.jsx has no graceful fallback.
 - Not covered by any ticket yet.
+
+---
+
+## 2026-06-25 — TICKET-029 implementation scan
+
+**[SURVEY-004] `SurveyCapture` initial data fetch has no error handling**
+- File: `frontend/src/components/Pages/SurveyCapture.jsx` lines 128–129
+- Bare `fetch()` calls for `/lines` and `/locations` with no try/catch and no `.catch()`. A network failure silently keeps both arrays empty — the line selector renders with no options.
+- Related to pre-existing [STORE-001]. Not covered by any ticket yet.
+
+**[SURVEY-005] `SurveyReview` load function has no try/catch — infinite loading state on error**
+- File: `frontend/src/components/Pages/SurveyReview.jsx` — `load()` inside `useEffect`
+- `authFetch` and `fetch` calls have no outer try/catch. A network-level failure leaves `loading` true forever and the user sees a blank `#c0c0c0` screen with no message.
+- Related to pre-existing [TIMETABLE-001]. Not covered by any ticket yet.

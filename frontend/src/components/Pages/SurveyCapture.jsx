@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router';
 
 import { API_URL, SURVEY_API, authFetch } from '../../utils/api';
 import { getDistance } from '../../utils/helpers';
 import { position } from '../../utils/enums';
 
-const glassCard = 'bg-white/5 border border-white/10 rounded-xl';
-const inputCls = 'w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white/90 text-sm placeholder-white/30 focus:outline-none focus:border-white/30';
-const labelCls = 'block text-xs text-white/50 mb-1';
+const winInput = 'win-input';
+const winLabel = 'win-label';
+const winBtn = 'win-btn';
 
 const StopModal = ({ currentPos, allLocations, onConfirm, onClose }) => {
     const [nameLat, setNameLat] = useState('');
@@ -40,68 +41,65 @@ const StopModal = ({ currentPos, allLocations, onConfirm, onClose }) => {
         });
     };
 
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div className={`${glassCard} w-full max-w-md p-6 flex flex-col gap-4`}>
-                <div className="flex items-center justify-between">
-                    <h2 className="text-base font-semibold text-white">Označi stanicu</h2>
-                    <button onClick={onClose} className="text-white/40 hover:text-white/70 text-xl leading-none">&times;</button>
+    return createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="win-dialog flex flex-col w-full max-w-md max-h-[90vh]">
+                <div className="win-titlebar">
+                    <span>Označi stanicu</span>
+                    <button onClick={onClose} className="win-close-btn">✕</button>
                 </div>
-                <div>
-                    <label className={labelCls}>Latinični naziv</label>
-                    <input
-                        className={inputCls}
-                        value={nameLat}
-                        onChange={(e) => setNameLat(e.target.value)}
-                        placeholder="Trg slobode"
-                        autoFocus
-                    />
-                </div>
-                <div>
-                    <label className={labelCls}>Ćirilični naziv</label>
-                    <input
-                        className={inputCls}
-                        value={nameCyr}
-                        onChange={(e) => setNameCyr(e.target.value)}
-                        placeholder="Трг слободе"
-                    />
-                </div>
-                {nearbyLocations.length > 0 && (
+                <div className="overflow-y-auto p-4 flex flex-col gap-3">
                     <div>
-                        <label className={labelCls}>Poveži s postojećom stanicom (opciono)</label>
-                        <select
-                            className={inputCls}
-                            value={existingId}
-                            onChange={(e) => setExistingId(e.target.value)}
-                        >
-                            <option value="">— ne povezuj —</option>
-                            {nearbyLocations.map((loc) => (
-                                <option key={loc.id} value={loc.id}>
-                                    {loc.lat_name} ({loc.distance}m)
-                                </option>
-                            ))}
-                        </select>
+                        <label className={winLabel}>Latinični naziv</label>
+                        <input
+                            className={winInput}
+                            value={nameLat}
+                            onChange={(e) => setNameLat(e.target.value)}
+                            placeholder="Trg slobode"
+                            autoFocus
+                        />
                     </div>
-                )}
-                <div className="flex gap-2 justify-end pt-2">
-                    <button
-                        type="button"
-                        className="px-3 py-1.5 rounded-lg text-xs font-medium border border-white/10 text-white/50 hover:text-white/70 transition-all duration-200 cursor-pointer"
-                        onClick={onClose}
-                    >
-                        Otkaži
-                    </button>
-                    <button
-                        type="button"
-                        className="px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/30 transition-all duration-200 cursor-pointer"
-                        onClick={handleConfirm}
-                        disabled={!nameLat.trim()}
-                    >
-                        Potvrdi
-                    </button>
+                    <div>
+                        <label className={winLabel}>Ćirilični naziv</label>
+                        <input
+                            className={winInput}
+                            value={nameCyr}
+                            onChange={(e) => setNameCyr(e.target.value)}
+                            placeholder="Трг слободе"
+                        />
+                    </div>
+                    {nearbyLocations.length > 0 && (
+                        <div>
+                            <label className={winLabel}>Poveži s postojećom stanicom (opciono)</label>
+                            <select
+                                className={winInput}
+                                value={existingId}
+                                onChange={(e) => setExistingId(e.target.value)}
+                            >
+                                <option value="">— ne povezuj —</option>
+                                {nearbyLocations.map((loc) => (
+                                    <option key={loc.id} value={loc.id}>
+                                        {loc.lat_name} ({loc.distance}m)
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
+                    <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end', paddingTop: 4 }}>
+                        <button type="button" className={winBtn} onClick={onClose}>Otkaži</button>
+                        <button
+                            type="button"
+                            className="win-btn win-btn-success"
+                            onClick={handleConfirm}
+                            disabled={!nameLat.trim()}
+                        >
+                            Potvrdi
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 
@@ -209,45 +207,35 @@ const SurveyCapture = () => {
 
     if (geoError) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950 p-4 flex items-center justify-center">
-                <div className={`${glassCard} p-6 max-w-sm text-center`}>
-                    <p className="text-white/70 text-sm mb-4">{geoError}</p>
-                    <button
-                        onClick={() => navigate('/admin')}
-                        className="px-4 py-2 rounded-xl text-sm bg-white/5 border border-white/10 text-white/60 hover:bg-white/10 hover:text-white/80 transition-all duration-200 cursor-pointer"
-                    >
-                        Nazad na admin
-                    </button>
+            <div style={{ minHeight: '100vh', width: '100vw', background: '#c0c0c0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div className="win-panel" style={{ maxWidth: 360, padding: 16, textAlign: 'center' }}>
+                    <p style={{ fontFamily: "Tahoma, 'MS Sans Serif', sans-serif", fontSize: 11, marginBottom: 8 }}>{geoError}</p>
+                    <button className={winBtn} onClick={() => navigate('/admin')}>Nazad na admin</button>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950 p-4">
-            <div className="max-w-lg mx-auto flex flex-col gap-6">
-                <div className="flex items-center justify-between">
-                    <button
-                        onClick={() => navigate('/admin')}
-                        className="text-sm text-white/40 hover:text-white/70 transition-colors duration-200 cursor-pointer"
-                    >
-                        ← Poništi snimanje
-                    </button>
-                    <h1 className="text-lg font-semibold text-white">Terensko snimanje</h1>
-                </div>
+        <div style={{ minHeight: '100vh', width: '100vw', background: '#c0c0c0', fontFamily: "Tahoma, 'MS Sans Serif', sans-serif" }}>
+            <div className="win-titlebar" style={{ padding: '4px 8px' }}>
+                <span>Terensko snimanje</span>
+                <button className={winBtn} style={{ fontSize: 11 }} onClick={() => navigate('/admin')}>← Admin</button>
+            </div>
 
+            <div style={{ maxWidth: 720, margin: '0 auto', padding: 8 }}>
                 {!wakeLockAvailable && recording && (
-                    <div className="px-4 py-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-sm">
-                        Drži ekran aktivan tokom snimanja
+                    <div className="win-panel" style={{ padding: '6px 10px', marginBottom: 8, border: '2px solid #808080' }}>
+                        <span style={{ fontSize: 11 }}>Drži ekran aktivan tokom snimanja</span>
                     </div>
                 )}
 
                 {!recording ? (
-                    <div className={`${glassCard} p-6 flex flex-col gap-5`}>
-                        <div>
-                            <label className={labelCls}>Odaberi liniju</label>
+                    <div className="win-panel" style={{ padding: 8 }}>
+                        <div style={{ marginBottom: 8 }}>
+                            <label className={winLabel}>Odaberi liniju</label>
                             <select
-                                className={inputCls}
+                                className={winInput}
                                 value={selectedLineId}
                                 onChange={(e) => setSelectedLineId(e.target.value)}
                             >
@@ -258,38 +246,37 @@ const SurveyCapture = () => {
                             </select>
                         </div>
                         <button
+                            className="win-btn win-btn-success"
+                            style={{ width: '100%', padding: '8px 0' }}
                             onClick={startRecording}
                             disabled={!selectedLineId}
-                            className={`w-full py-3 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer ${
-                                selectedLineId
-                                    ? 'bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/30'
-                                    : 'bg-white/5 border border-white/10 text-white/30 cursor-not-allowed'
-                            }`}
                         >
                             Počni snimanje
                         </button>
                     </div>
                 ) : (
-                    <div className="flex flex-col gap-4">
-                        <div className={`${glassCard} p-8 text-center`}>
-                            <p className="text-5xl font-bold text-white tabular-nums">{counter.points}</p>
-                            <p className="text-white/40 text-sm mt-2">GPS tačaka</p>
-                            <div className="mt-4 h-px bg-white/10" />
-                            <p className="text-3xl font-semibold text-emerald-400 tabular-nums mt-4">{counter.stops}</p>
-                            <p className="text-white/40 text-sm mt-1">stanica označeno</p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <div className="win-panel" style={{ padding: 12, textAlign: 'center' }}>
+                            <p style={{ fontSize: 36, fontWeight: 'bold', fontFamily: 'monospace', margin: '0 0 2px 0' }}>{counter.points}</p>
+                            <p style={{ fontSize: 11, color: '#444', margin: '0 0 10px 0' }}>GPS tačaka</p>
+                            <div style={{ height: 1, background: '#808080', margin: '8px 0' }} />
+                            <p style={{ fontSize: 24, fontWeight: 'bold', fontFamily: 'monospace', margin: '8px 0 2px 0' }}>{counter.stops}</p>
+                            <p style={{ fontSize: 11, color: '#444', margin: 0 }}>stanica označeno</p>
                         </div>
 
                         <button
+                            className="win-btn win-btn-success"
+                            style={{ width: '100%', padding: '10px 0', fontSize: 13 }}
                             onClick={() => setStopModalOpen(true)}
-                            className="w-full py-4 rounded-xl text-base font-semibold bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/30 transition-all duration-200 cursor-pointer"
                         >
                             + Označi stanicu
                         </button>
 
                         <button
+                            className="win-btn win-btn-danger"
+                            style={{ width: '100%', padding: '10px 0', fontSize: 13 }}
                             onClick={handleSubmit}
                             disabled={submitting}
-                            className="w-full py-4 rounded-xl text-base font-semibold bg-red-500/20 border border-red-500/30 text-red-300 hover:bg-red-500/30 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {submitting ? 'Slanje...' : 'Završi snimanje'}
                         </button>
