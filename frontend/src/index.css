@@ -83,3 +83,151 @@ button:focus-visible {
 .button-look:focus-visible {
     outline: 4px auto -webkit-focus-ring-color;
 }
+
+/* === admin retro === */
+.win-btn {
+  background-color: #d4d0c8;
+  border-top: 2px solid #ffffff;
+  border-left: 2px solid #ffffff;
+  border-right: 2px solid #808080;
+  border-bottom: 2px solid #808080;
+  border-radius: 0;
+  font-family: Tahoma, 'MS Sans Serif', sans-serif;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 3px 8px;
+  color: #000000;
+}
+.win-btn:hover, .win-tab-active:hover, .win-tab-inactive:hover, .win-close-btn:hover {
+  border-color: inherit;
+}
+.win-btn:active, .win-btn.pressed {
+  border-top: 2px solid #808080;
+  border-left: 2px solid #808080;
+  border-right: 2px solid #ffffff;
+  border-bottom: 2px solid #ffffff;
+}
+.win-btn-danger {
+  background-color: #ffcccc;
+}
+.win-btn-success {
+  background-color: #ccffcc;
+}
+.win-input {
+  background: #ffffff;
+  border-top: 2px solid #808080;
+  border-left: 2px solid #808080;
+  border-right: 2px solid #ffffff;
+  border-bottom: 2px solid #ffffff;
+  font-family: Tahoma, 'MS Sans Serif', sans-serif;
+  font-size: 11px;
+  color: #000000;
+  padding: 2px 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.win-input:focus {
+  outline: 1px dotted #000080;
+}
+.win-label {
+  font-family: Tahoma, 'MS Sans Serif', sans-serif;
+  font-size: 11px;
+  font-weight: bold;
+  color: #000000;
+  display: block;
+  margin-bottom: 2px;
+}
+.win-panel {
+  background: #ece9d8;
+  border-top: 2px solid #ffffff;
+  border-left: 2px solid #ffffff;
+  border-right: 2px solid #808080;
+  border-bottom: 2px solid #808080;
+}
+.win-dialog {
+  background: #ece9d8;
+  border-top: 2px solid #ffffff;
+  border-left: 2px solid #ffffff;
+  border-right: 2px solid #404040;
+  border-bottom: 2px solid #404040;
+}
+.win-titlebar {
+  background: linear-gradient(to right, #0a246a, #3a6ea8);
+  color: #ffffff;
+  font-family: Tahoma, 'MS Sans Serif', sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 3px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.win-close-btn {
+  background: #d4d0c8;
+  border-top: 1px solid #ffffff;
+  border-left: 1px solid #ffffff;
+  border-right: 1px solid #404040;
+  border-bottom: 1px solid #404040;
+  border-radius: 0;
+  font-size: 11px;
+  width: 16px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #000000;
+  padding: 0;
+}
+.win-tab-active {
+  background: #ece9d8;
+  border-top: 2px solid #ffffff;
+  border-left: 2px solid #ffffff;
+  border-right: 2px solid #808080;
+  border-bottom: 2px solid #ece9d8;
+  border-radius: 0;
+  font-family: Tahoma, 'MS Sans Serif', sans-serif;
+  font-size: 11px;
+  padding: 4px 12px;
+  position: relative;
+  top: 1px;
+  z-index: 1;
+  color: #000000;
+  cursor: pointer;
+}
+.win-tab-inactive {
+  background: #c0c0c0;
+  border-top: 1px solid #ffffff;
+  border-left: 1px solid #ffffff;
+  border-right: 1px solid #808080;
+  border-bottom: 1px solid #808080;
+  border-radius: 0;
+  font-family: Tahoma, 'MS Sans Serif', sans-serif;
+  font-size: 11px;
+  padding: 3px 12px;
+  margin-top: 3px;
+  cursor: pointer;
+  color: #000000;
+}
+.win-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: Tahoma, 'MS Sans Serif', sans-serif;
+  font-size: 11px;
+  background: #ffffff;
+}
+.win-table th {
+  background: #d4d0c8;
+  border: 1px solid #808080;
+  padding: 3px 6px;
+  text-align: left;
+}
+.win-table td {
+  border: 1px solid #c0c0c0;
+  padding: 3px 6px;
+  color: #000000;
+}
+.win-table tr:nth-child(even) td {
+  background: #f0f0f0;
+}
+/* === end admin retro === */

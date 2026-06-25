@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { MapContainer, Marker, TileLayer, useMapEvents } from 'react-leaflet';
 import { useNavigate } from 'react-router';
 
@@ -17,24 +17,24 @@ const DAY_TYPES = [
     { value: 'sunday', label: 'Nedelja' },
 ];
 
-const glassCard = 'bg-white/5 border border-white/10 rounded-xl';
-const inputCls = 'w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white/90 text-sm placeholder-white/30 focus:outline-none focus:border-white/30';
-const labelCls = 'block text-xs text-white/50 mb-1';
-const btnBase = 'px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 select-none cursor-pointer';
-const btnPrimary = `${btnBase} bg-white/10 border border-white/20 text-white hover:bg-white/20`;
-const btnDanger = `${btnBase} bg-red-500/20 border border-red-500/30 text-red-300 hover:bg-red-500/30`;
-const btnSuccess = `${btnBase} bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/30`;
+const winInput = 'win-input';
+const winLabel = 'win-label';
+const winBtn = 'win-btn';
+const winBtnDanger = 'win-btn win-btn-danger';
+const winBtnSuccess = 'win-btn win-btn-success';
 
 // ─── Modal wrapper ──────────────────────────────────────────────────────────────
 
 const Modal = ({ title, onClose, children }) => (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-        <div className={`${glassCard} w-full max-w-lg p-6 flex flex-col gap-4 max-h-[90vh] overflow-y-auto`}>
-            <div className="flex items-center justify-between">
-                <h2 className="text-base font-semibold text-white">{title}</h2>
-                <button onClick={onClose} className="text-white/40 hover:text-white/70 text-xl leading-none">&times;</button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div className="win-dialog flex flex-col w-full max-w-lg max-h-[90vh]">
+            <div className="win-titlebar">
+                <span>{title}</span>
+                <button onClick={onClose} className="win-close-btn">✕</button>
             </div>
-            {children}
+            <div className="overflow-y-auto p-4 flex flex-col gap-3">
+                {children}
+            </div>
         </div>
     </div>
 );
@@ -109,43 +109,43 @@ const LinesTab = () => {
 
     return (
         <>
-            <div className="flex items-center justify-between mb-4">
-                <span className="text-sm text-white/50">{lines.length} linija</span>
-                <button className={btnPrimary} onClick={openCreate}>+ Dodaj liniju</button>
+            <div className="flex items-center justify-between mb-2">
+                <span style={{ fontFamily: "Tahoma, 'MS Sans Serif', sans-serif", fontSize: 11 }}>{lines.length} linija</span>
+                <button className={winBtn} onClick={openCreate}>+ Dodaj liniju</button>
             </div>
 
             {loading ? (
-                <p className="text-sm text-white/40">Učitavanje...</p>
+                <p style={{ fontFamily: "Tahoma, 'MS Sans Serif', sans-serif", fontSize: 11 }}>Učitavanje...</p>
             ) : (
-                <div className={`${glassCard} overflow-x-auto`}>
-                    <table className="w-full text-sm">
+                <div className="overflow-x-auto">
+                    <table className="win-table">
                         <thead>
-                            <tr className="border-b border-white/10 text-white/40 text-xs">
-                                <th className="text-left px-4 py-3">Br.</th>
-                                <th className="text-left px-4 py-3">Latinični</th>
-                                <th className="text-left px-4 py-3">Ćirilični</th>
-                                <th className="text-left px-4 py-3">Boja</th>
-                                <th className="text-left px-4 py-3">Smer</th>
-                                <th className="px-4 py-3"></th>
+                            <tr>
+                                <th>Br.</th>
+                                <th>Latinični</th>
+                                <th>Ćirilični</th>
+                                <th>Boja</th>
+                                <th>Smer</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
                             {lines.map((l) => (
-                                <tr key={l.id} className="border-b border-white/5 hover:bg-white/5">
-                                    <td className="px-4 py-3 text-white/90 font-mono">{l.number}</td>
-                                    <td className="px-4 py-3 text-white/80">{l.lat_name}</td>
-                                    <td className="px-4 py-3 text-white/60">{l.cyr_name}</td>
-                                    <td className="px-4 py-3">
-                                        <span className="inline-flex items-center gap-2">
-                                            <span className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: l.hex_color }} />
-                                            <span className="text-white/40 text-xs font-mono">{l.hex_color}</span>
+                                <tr key={l.id}>
+                                    <td style={{ fontFamily: 'monospace' }}>{l.number}</td>
+                                    <td>{l.lat_name}</td>
+                                    <td>{l.cyr_name}</td>
+                                    <td>
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                                            <span style={{ width: 14, height: 14, borderRadius: 2, border: '1px solid #808080', backgroundColor: l.hex_color, display: 'inline-block' }} />
+                                            <span style={{ fontFamily: 'monospace', fontSize: 10 }}>{l.hex_color}</span>
                                         </span>
                                     </td>
-                                    <td className="px-4 py-3 text-white/50">{l.direction ?? '—'}</td>
-                                    <td className="px-4 py-3">
-                                        <span className="flex gap-2 justify-end">
-                                            <button className={btnPrimary} onClick={() => openEdit(l)}>Izmeni</button>
-                                            <button className={btnDanger} onClick={() => handleDelete(l.id)}>Obriši</button>
+                                    <td>{l.direction ?? '—'}</td>
+                                    <td>
+                                        <span style={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+                                            <button className={winBtn} onClick={() => openEdit(l)}>Izmeni</button>
+                                            <button className={winBtnDanger} onClick={() => handleDelete(l.id)}>Obriši</button>
                                         </span>
                                     </td>
                                 </tr>
@@ -157,37 +157,37 @@ const LinesTab = () => {
 
             {modalOpen && (
                 <Modal title={editTarget ? 'Izmeni liniju' : 'Nova linija'} onClose={() => setModalOpen(false)}>
-                    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                         <div>
-                            <label className={labelCls}>Broj linije</label>
-                            <input className={inputCls} value={form.number} onChange={setField('number')} placeholder="npr. 4" required />
+                            <label className={winLabel}>Broj linije</label>
+                            <input className={winInput} value={form.number} onChange={setField('number')} placeholder="npr. 4" required />
                         </div>
                         <div>
-                            <label className={labelCls}>Latinični naziv</label>
-                            <input className={inputCls} value={form.lat_name} onChange={setField('lat_name')} placeholder="Centar - Šangaj" required />
+                            <label className={winLabel}>Latinični naziv</label>
+                            <input className={winInput} value={form.lat_name} onChange={setField('lat_name')} placeholder="Centar - Šangaj" required />
                         </div>
                         <div>
-                            <label className={labelCls}>Ćirilični naziv</label>
-                            <input className={inputCls} value={form.cyr_name} onChange={setField('cyr_name')} placeholder="Центар - Шангај" required />
+                            <label className={winLabel}>Ćirilični naziv</label>
+                            <input className={winInput} value={form.cyr_name} onChange={setField('cyr_name')} placeholder="Центар - Шангај" required />
                         </div>
                         <div>
-                            <label className={labelCls}>Boja</label>
-                            <div className="flex items-center gap-3">
-                                <input type="color" className="h-9 w-16 rounded-lg cursor-pointer bg-transparent border border-white/10" value={form.hex_color} onChange={setField('hex_color')} />
-                                <input className={`${inputCls} flex-1`} value={form.hex_color} onChange={setField('hex_color')} placeholder="#ffffff" />
+                            <label className={winLabel}>Boja</label>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <input type="color" style={{ height: 24, width: 40, cursor: 'pointer', border: '1px solid #808080', padding: 1 }} value={form.hex_color} onChange={setField('hex_color')} />
+                                <input className={winInput} style={{ flex: 1 }} value={form.hex_color} onChange={setField('hex_color')} placeholder="#ffffff" />
                             </div>
                         </div>
                         <div>
-                            <label className={labelCls}>Smer (opciono)</label>
-                            <select className={inputCls} value={form.direction} onChange={setField('direction')}>
+                            <label className={winLabel}>Smer (opciono)</label>
+                            <select className={winInput} value={form.direction} onChange={setField('direction')}>
                                 <option value="">Bez smera</option>
                                 <option value="A">A</option>
                                 <option value="B">B</option>
                             </select>
                         </div>
-                        <div className="flex gap-2 justify-end pt-2">
-                            <button type="button" className={btnBase + ' border border-white/10 text-white/50 hover:text-white/70'} onClick={() => setModalOpen(false)}>Otkaži</button>
-                            <button type="submit" className={btnSuccess}>Sačuvaj</button>
+                        <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end', paddingTop: 4 }}>
+                            <button type="button" className={winBtn} onClick={() => setModalOpen(false)}>Otkaži</button>
+                            <button type="submit" className={winBtnSuccess}>Sačuvaj</button>
                         </div>
                     </form>
                 </Modal>
@@ -274,38 +274,38 @@ const StopsTab = () => {
 
     return (
         <>
-            <div className="flex items-center justify-between mb-4">
-                <span className="text-sm text-white/50">{stops.length} stanica</span>
-                <button className={btnPrimary} onClick={openCreate}>+ Dodaj stanicu</button>
+            <div className="flex items-center justify-between mb-2">
+                <span style={{ fontFamily: "Tahoma, 'MS Sans Serif', sans-serif", fontSize: 11 }}>{stops.length} stanica</span>
+                <button className={winBtn} onClick={openCreate}>+ Dodaj stanicu</button>
             </div>
 
             {loading ? (
-                <p className="text-sm text-white/40">Učitavanje...</p>
+                <p style={{ fontFamily: "Tahoma, 'MS Sans Serif', sans-serif", fontSize: 11 }}>Učitavanje...</p>
             ) : (
-                <div className={`${glassCard} overflow-x-auto`}>
-                    <table className="w-full text-sm">
+                <div className="overflow-x-auto">
+                    <table className="win-table">
                         <thead>
-                            <tr className="border-b border-white/10 text-white/40 text-xs">
-                                <th className="text-left px-4 py-3">ID</th>
-                                <th className="text-left px-4 py-3">Latinični</th>
-                                <th className="text-left px-4 py-3">Ćirilični</th>
-                                <th className="text-left px-4 py-3">Lat</th>
-                                <th className="text-left px-4 py-3">Lng</th>
-                                <th className="px-4 py-3"></th>
+                            <tr>
+                                <th>ID</th>
+                                <th>Latinični</th>
+                                <th>Ćirilični</th>
+                                <th>Lat</th>
+                                <th>Lng</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
                             {stops.map((s) => (
-                                <tr key={s.id} className="border-b border-white/5 hover:bg-white/5">
-                                    <td className="px-4 py-3 text-white/30 font-mono text-xs">{s.id}</td>
-                                    <td className="px-4 py-3 text-white/90">{s.lat_name}</td>
-                                    <td className="px-4 py-3 text-white/60">{s.cyr_name}</td>
-                                    <td className="px-4 py-3 text-white/40 font-mono text-xs">{s.lat ?? '—'}</td>
-                                    <td className="px-4 py-3 text-white/40 font-mono text-xs">{s.lng ?? '—'}</td>
-                                    <td className="px-4 py-3">
-                                        <span className="flex gap-2 justify-end">
-                                            <button className={btnPrimary} onClick={() => openEdit(s)}>Izmeni</button>
-                                            <button className={btnDanger} onClick={() => handleDelete(s.id)}>Obriši</button>
+                                <tr key={s.id}>
+                                    <td style={{ fontFamily: 'monospace', fontSize: 10 }}>{s.id}</td>
+                                    <td>{s.lat_name}</td>
+                                    <td>{s.cyr_name}</td>
+                                    <td style={{ fontFamily: 'monospace', fontSize: 10 }}>{s.lat ?? '—'}</td>
+                                    <td style={{ fontFamily: 'monospace', fontSize: 10 }}>{s.lng ?? '—'}</td>
+                                    <td>
+                                        <span style={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+                                            <button className={winBtn} onClick={() => openEdit(s)}>Izmeni</button>
+                                            <button className={winBtnDanger} onClick={() => handleDelete(s.id)}>Obriši</button>
                                         </span>
                                     </td>
                                 </tr>
@@ -317,28 +317,28 @@ const StopsTab = () => {
 
             {modalOpen && (
                 <Modal title={editTarget ? 'Izmeni stanicu' : 'Nova stanica'} onClose={() => setModalOpen(false)}>
-                    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                         <div>
-                            <label className={labelCls}>Latinični naziv</label>
-                            <input className={inputCls} value={form.lat_name} onChange={setField('lat_name')} placeholder="Trg slobode" required />
+                            <label className={winLabel}>Latinični naziv</label>
+                            <input className={winInput} value={form.lat_name} onChange={setField('lat_name')} placeholder="Trg slobode" required />
                         </div>
                         <div>
-                            <label className={labelCls}>Ćirilični naziv</label>
-                            <input className={inputCls} value={form.cyr_name} onChange={setField('cyr_name')} placeholder="Трг слободе" required />
+                            <label className={winLabel}>Ćirilični naziv</label>
+                            <input className={winInput} value={form.cyr_name} onChange={setField('cyr_name')} placeholder="Трг слободе" required />
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <label className={labelCls}>Geografska širina</label>
-                                <input className={inputCls} value={form.lat} onChange={setField('lat')} placeholder="45.380324" />
+                                <label className={winLabel}>Geografska širina</label>
+                                <input className={winInput} value={form.lat} onChange={setField('lat')} placeholder="45.380324" />
                             </div>
                             <div>
-                                <label className={labelCls}>Geografska dužina</label>
-                                <input className={inputCls} value={form.lng} onChange={setField('lng')} placeholder="20.390627" />
+                                <label className={winLabel}>Geografska dužina</label>
+                                <input className={winInput} value={form.lng} onChange={setField('lng')} placeholder="20.390627" />
                             </div>
                         </div>
                         <div>
-                            <label className={labelCls}>Klikni na mapi za koordinate</label>
-                            <div className="rounded-lg overflow-hidden border border-white/10" style={{ height: 260 }}>
+                            <label className={winLabel}>Klikni na mapi za koordinate</label>
+                            <div style={{ height: 260, border: '2px solid #808080' }}>
                                 <MapContainer
                                     center={markerPos ?? [position.lat, position.lng]}
                                     zoom={14}
@@ -351,9 +351,9 @@ const StopsTab = () => {
                                 </MapContainer>
                             </div>
                         </div>
-                        <div className="flex gap-2 justify-end pt-2">
-                            <button type="button" className={btnBase + ' border border-white/10 text-white/50 hover:text-white/70'} onClick={() => setModalOpen(false)}>Otkaži</button>
-                            <button type="submit" className={btnSuccess}>Sačuvaj</button>
+                        <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end', paddingTop: 4 }}>
+                            <button type="button" className={winBtn} onClick={() => setModalOpen(false)}>Otkaži</button>
+                            <button type="submit" className={winBtnSuccess}>Sačuvaj</button>
                         </div>
                     </form>
                 </Modal>
@@ -442,10 +442,10 @@ const AssignmentsTab = () => {
     const assignedIds = useMemo(() => new Set(assignments.map((a) => a.locations?.id)), [assignments]);
 
     return (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3">
             <div>
-                <label className={labelCls}>Odaberi liniju</label>
-                <select className={inputCls} value={selectedLineId} onChange={(e) => setSelectedLineId(e.target.value)}>
+                <label className={winLabel}>Odaberi liniju</label>
+                <select className={winInput} value={selectedLineId} onChange={(e) => setSelectedLineId(e.target.value)}>
                     <option value="">— izaberi liniju —</option>
                     {lines.map((l) => (
                         <option key={l.id} value={l.id}>{l.number} — {l.lat_name}</option>
@@ -456,27 +456,27 @@ const AssignmentsTab = () => {
             {selectedLineId && (
                 <>
                     {loadingAssignments ? (
-                        <p className="text-sm text-white/40">Učitavanje...</p>
+                        <p style={{ fontFamily: "Tahoma, 'MS Sans Serif', sans-serif", fontSize: 11 }}>Učitavanje...</p>
                     ) : (
-                        <div className={`${glassCard} overflow-x-auto`}>
-                            <table className="w-full text-sm">
+                        <div className="overflow-x-auto">
+                            <table className="win-table">
                                 <thead>
-                                    <tr className="border-b border-white/10 text-white/40 text-xs">
-                                        <th className="text-left px-4 py-3">Br.</th>
-                                        <th className="text-left px-4 py-3">Stanica</th>
-                                        <th className="px-4 py-3"></th>
+                                    <tr>
+                                        <th>Br.</th>
+                                        <th>Stanica</th>
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {assignments.map((a, i) => (
-                                        <tr key={a.id} className="border-b border-white/5 hover:bg-white/5">
-                                            <td className="px-4 py-3 text-white/40 font-mono text-xs w-12">{a.stop_number}</td>
-                                            <td className="px-4 py-3 text-white/80">{a.locations?.lat_name}</td>
-                                            <td className="px-4 py-3">
-                                                <span className="flex gap-1 justify-end">
-                                                    <button className={btnPrimary} onClick={() => handleReorder(i, -1)} disabled={i === 0}>↑</button>
-                                                    <button className={btnPrimary} onClick={() => handleReorder(i, 1)} disabled={i === assignments.length - 1}>↓</button>
-                                                    <button className={btnDanger} onClick={() => handleRemove(a.id)}>Ukloni</button>
+                                        <tr key={a.id}>
+                                            <td style={{ fontFamily: 'monospace', fontSize: 10, width: 40 }}>{a.stop_number}</td>
+                                            <td>{a.locations?.lat_name}</td>
+                                            <td>
+                                                <span style={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+                                                    <button className={winBtn} onClick={() => handleReorder(i, -1)} disabled={i === 0}>↑</button>
+                                                    <button className={winBtn} onClick={() => handleReorder(i, 1)} disabled={i === assignments.length - 1}>↓</button>
+                                                    <button className={winBtnDanger} onClick={() => handleRemove(a.id)}>Ukloni</button>
                                                 </span>
                                             </td>
                                         </tr>
@@ -486,17 +486,17 @@ const AssignmentsTab = () => {
                         </div>
                     )}
 
-                    <div className={`${glassCard} p-4 flex gap-3 items-end`}>
-                        <div className="flex-1">
-                            <label className={labelCls}>Dodaj stanicu na liniju</label>
-                            <select className={inputCls} value={addStopId} onChange={(e) => setAddStopId(e.target.value)}>
+                    <div className="win-panel" style={{ padding: 6, display: 'flex', gap: 6, alignItems: 'flex-end' }}>
+                        <div style={{ flex: 1 }}>
+                            <label className={winLabel}>Dodaj stanicu na liniju</label>
+                            <select className={winInput} value={addStopId} onChange={(e) => setAddStopId(e.target.value)}>
                                 <option value="">— izaberi stanicu —</option>
                                 {allStops.filter((s) => !assignedIds.has(s.id)).map((s) => (
                                     <option key={s.id} value={s.id}>{s.lat_name}</option>
                                 ))}
                             </select>
                         </div>
-                        <button className={btnSuccess} onClick={handleAdd}>Dodaj</button>
+                        <button className={winBtnSuccess} onClick={handleAdd}>Dodaj</button>
                     </div>
                 </>
             )}
@@ -605,11 +605,11 @@ const DeparturesTab = () => {
     };
 
     return (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                    <label className={labelCls}>Linija</label>
-                    <select className={inputCls} value={selectedLineId} onChange={(e) => setSelectedLineId(e.target.value)}>
+                    <label className={winLabel}>Linija</label>
+                    <select className={winInput} value={selectedLineId} onChange={(e) => setSelectedLineId(e.target.value)}>
                         <option value="">— izaberi liniju —</option>
                         {lines.map((l) => (
                             <option key={l.id} value={l.id}>{l.number} — {l.lat_name}</option>
@@ -617,8 +617,8 @@ const DeparturesTab = () => {
                     </select>
                 </div>
                 <div>
-                    <label className={labelCls}>Stanica</label>
-                    <select className={inputCls} value={selectedAssignmentId} onChange={(e) => setSelectedAssignmentId(e.target.value)} disabled={!selectedLineId}>
+                    <label className={winLabel}>Stanica</label>
+                    <select className={winInput} value={selectedAssignmentId} onChange={(e) => setSelectedAssignmentId(e.target.value)} disabled={!selectedLineId}>
                         <option value="">— izaberi stanicu —</option>
                         {assignments.map((a) => (
                             <option key={a.id} value={a.id}>{a.stop_number}. {a.locations?.lat_name}</option>
@@ -629,11 +629,12 @@ const DeparturesTab = () => {
 
             {selectedAssignmentId && (
                 <>
-                    <div className="flex gap-2">
+                    <div style={{ display: 'flex', gap: 2 }}>
                         {DAY_TYPES.map((dt) => (
                             <button
                                 key={dt.value}
-                                className={`${btnBase} border ${dayType === dt.value ? 'bg-white/15 border-white/30 text-white' : 'border-white/10 text-white/40 hover:text-white/60'}`}
+                                className={winBtn}
+                                style={dayType === dt.value ? { fontWeight: 'bold', borderTop: '2px solid #808080', borderLeft: '2px solid #808080', borderRight: '2px solid #ffffff', borderBottom: '2px solid #ffffff' } : {}}
                                 onClick={() => setDayType(dt.value)}
                             >
                                 {dt.label}
@@ -642,28 +643,28 @@ const DeparturesTab = () => {
                     </div>
 
                     {loading ? (
-                        <p className="text-sm text-white/40">Učitavanje...</p>
+                        <p style={{ fontFamily: "Tahoma, 'MS Sans Serif', sans-serif", fontSize: 11 }}>Učitavanje...</p>
                     ) : (
-                        <div className={`${glassCard} overflow-x-auto`}>
-                            <table className="w-full text-sm">
+                        <div className="overflow-x-auto">
+                            <table className="win-table">
                                 <thead>
-                                    <tr className="border-b border-white/10 text-white/40 text-xs">
-                                        <th className="text-left px-4 py-3">Vreme</th>
-                                        <th className="px-4 py-3"></th>
+                                    <tr>
+                                        <th>Vreme</th>
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {departures.map((d) => (
-                                        <tr key={d.id} className="border-b border-white/5 hover:bg-white/5">
-                                            <td className="px-4 py-3 text-white/90 font-mono">{d.departure}</td>
-                                            <td className="px-4 py-3 text-right">
-                                                <button className={btnDanger} onClick={() => handleDelete(d.id)}>Obriši</button>
+                                        <tr key={d.id}>
+                                            <td style={{ fontFamily: 'monospace' }}>{d.departure}</td>
+                                            <td style={{ textAlign: 'right' }}>
+                                                <button className={winBtnDanger} onClick={() => handleDelete(d.id)}>Obriši</button>
                                             </td>
                                         </tr>
                                     ))}
                                     {departures.length === 0 && (
                                         <tr>
-                                            <td colSpan={2} className="px-4 py-6 text-center text-white/30 text-xs">Nema polazaka za ovaj dan.</td>
+                                            <td colSpan={2} style={{ textAlign: 'center', padding: '12px 6px', color: '#808080' }}>Nema polazaka za ovaj dan.</td>
                                         </tr>
                                     )}
                                 </tbody>
@@ -671,34 +672,35 @@ const DeparturesTab = () => {
                         </div>
                     )}
 
-                    <div className={`${glassCard} p-4 flex gap-3 items-end`}>
+                    <div className="win-panel" style={{ padding: 6, display: 'flex', gap: 6, alignItems: 'flex-end' }}>
                         <div>
-                            <label className={labelCls}>Dodaj polazak</label>
+                            <label className={winLabel}>Dodaj polazak</label>
                             <input
                                 type="time"
-                                className={inputCls}
+                                className={winInput}
                                 value={newTime}
                                 onChange={(e) => setNewTime(e.target.value)}
                             />
                         </div>
-                        <button className={btnSuccess} onClick={handleAdd}>Dodaj</button>
+                        <button className={winBtnSuccess} onClick={handleAdd}>Dodaj</button>
                     </div>
 
-                    <div className={`${glassCard} p-4 flex flex-col gap-3`}>
-                        <label className={labelCls}>Bulk uvoz (jedno vreme po liniji ili razmakom/zarezom)</label>
+                    <div className="win-panel" style={{ padding: 6, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        <label className={winLabel}>Bulk uvoz (jedno vreme po liniji ili razmakom/zarezom)</label>
                         <textarea
-                            className={`${inputCls} h-28 resize-none`}
+                            className={winInput}
+                            style={{ height: 80, resize: 'none' }}
                             value={bulkText}
                             onChange={(e) => setBulkText(e.target.value)}
                             placeholder={'06:00\n06:30\n07:00'}
                         />
-                        <div className="flex gap-2">
-                            <button className={btnSuccess} onClick={handleBulkImport}>Uvezi</button>
+                        <div style={{ display: 'flex', gap: 4 }}>
+                            <button className={winBtnSuccess} onClick={handleBulkImport}>Uvezi</button>
                         </div>
                     </div>
 
-                    <div className="flex justify-end">
-                        <button className={btnDanger} onClick={handleDeleteAll}>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <button className={winBtnDanger} onClick={handleDeleteAll}>
                             Obriši sve polaske za {DAY_TYPES.find((d) => d.value === dayType)?.label}
                         </button>
                     </div>
@@ -731,47 +733,36 @@ const AdminInner = () => {
     }, [activeTab]);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950 p-4 md:p-6">
+        <div style={{ minHeight: '100vh', width: '100vw', background: '#c0c0c0', fontFamily: "Tahoma, 'MS Sans Serif', sans-serif" }}>
             <ToastContainer />
-            <div className="max-w-5xl mx-auto flex flex-col gap-6">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-semibold text-white">Admin panel</h1>
-                        <p className="text-sm text-white/50 mt-1">ZR-Bus administracija</p>
+            <div className="win-titlebar" style={{ padding: '4px 8px' }}>
+                <span>ZR-Bus Admin</span>
+                <div style={{ display: 'flex', gap: 4 }}>
+                    <button onClick={() => navigate('/admin/survey')} className="win-btn" style={{ fontSize: 11 }}>
+                        Terensko snimanje
+                    </button>
+                    <button onClick={handleLogout} className="win-btn" style={{ fontSize: 11 }}>
+                        Odjava
+                    </button>
+                </div>
+            </div>
+            <div style={{ padding: '8px' }}>
+                <div style={{ maxWidth: 720, margin: '0 auto' }}>
+                    <div style={{ display: 'flex', borderBottom: '2px solid #808080', marginBottom: 0 }}>
+                        {TABS.map((tab, i) => (
+                            <button
+                                key={tab}
+                                onClick={() => setActiveTab(i)}
+                                className={activeTab === i ? 'win-tab-active' : 'win-tab-inactive'}
+                            >
+                                {tab}
+                            </button>
+                        ))}
                     </div>
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={() => navigate('/admin/survey')}
-                            className="px-4 py-2 rounded-xl text-sm bg-white/5 border border-white/10 text-white/60 hover:bg-white/10 hover:text-white/80 transition-all duration-200"
-                        >
-                            Terensko snimanje
-                        </button>
-                        <button
-                            onClick={handleLogout}
-                            className="px-4 py-2 rounded-xl text-sm bg-white/5 border border-white/10 text-white/60 hover:bg-white/10 hover:text-white/80 transition-all duration-200"
-                        >
-                            Odjava
-                        </button>
+                    <div className="win-panel" style={{ padding: '8px', position: 'relative', zIndex: 0 }}>
+                        {tabContent}
                     </div>
                 </div>
-
-                <div className="flex gap-1 border-b border-white/10 pb-0">
-                    {TABS.map((tab, i) => (
-                        <button
-                            key={tab}
-                            onClick={() => setActiveTab(i)}
-                            className={`px-4 py-2.5 text-sm font-medium rounded-t-lg transition-all duration-200 ${
-                                activeTab === i
-                                    ? 'bg-white/10 text-white border border-white/10 border-b-0'
-                                    : 'text-white/40 hover:text-white/70'
-                            }`}
-                        >
-                            {tab}
-                        </button>
-                    ))}
-                </div>
-
-                <div>{tabContent}</div>
             </div>
         </div>
     );
