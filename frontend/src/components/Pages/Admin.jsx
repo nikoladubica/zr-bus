@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { MapContainer, Marker, TileLayer, useMapEvents } from 'react-leaflet';
 import { useNavigate } from 'react-router';
 
@@ -25,19 +26,21 @@ const winBtnSuccess = 'win-btn win-btn-success';
 
 // ─── Modal wrapper ──────────────────────────────────────────────────────────────
 
-const Modal = ({ title, onClose, children }) => (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-        <div className="win-dialog flex flex-col w-full max-w-lg max-h-[90vh]">
-            <div className="win-titlebar">
-                <span>{title}</span>
-                <button onClick={onClose} className="win-close-btn">✕</button>
+const Modal = ({ title, onClose, children }) =>
+    createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="win-dialog flex flex-col w-full max-w-lg max-h-[90vh]">
+                <div className="win-titlebar">
+                    <span>{title}</span>
+                    <button onClick={onClose} className="win-close-btn">✕</button>
+                </div>
+                <div className="overflow-y-auto p-4 flex flex-col gap-3">
+                    {children}
+                </div>
             </div>
-            <div className="overflow-y-auto p-4 flex flex-col gap-3">
-                {children}
-            </div>
-        </div>
-    </div>
-);
+        </div>,
+        document.body
+    );
 
 // ─── Map click handler for stop placement ──────────────────────────────────────
 
@@ -205,6 +208,9 @@ const StopsTab = () => {
     const [modalOpen, setModalOpen] = useState(false);
     const [editTarget, setEditTarget] = useState(null);
     const [form, setForm] = useState({ lat_name: '', cyr_name: '', lat: '', lng: '' });
+    const [lines, setLines] = useState([]);
+    const [filterLineId, setFilterLineId] = useState('');
+    const [filteredLocationIds, setFilteredLocationIds] = useState(null);
 
     const fetchStops = useCallback(async () => {
         setLoading(true);
@@ -215,6 +221,29 @@ const StopsTab = () => {
     }, []);
 
     useEffect(() => { fetchStops(); }, [fetchStops]);
+
+    useEffect(() => {
+        fetch(LINES_API)
+            .then(r => r.json())
+            .then(setLines);
+    }, []);
+
+    useEffect(() => {
+        if (!filterLineId) {
+            setFilteredLocationIds(null);
+            return;
+        }
+        fetch(`${LINES_LOCATIONS_API}/${filterLineId}`)
+            .then(r => r.json())
+            .then(data => {
+                const ids = new Set(data.map(item => item.locations?.id));
+                setFilteredLocationIds(ids);
+            });
+    }, [filterLineId]);
+
+    const filteredStops = filteredLocationIds === null
+        ? stops
+        : stops.filter(s => filteredLocationIds.has(s.id));
 
     const openCreate = () => {
         setEditTarget(null);
@@ -275,8 +304,24 @@ const StopsTab = () => {
     return (
         <>
             <div className="flex items-center justify-between mb-2">
-                <span style={{ fontFamily: "Tahoma, 'MS Sans Serif', sans-serif", fontSize: 11 }}>{stops.length} stanica</span>
+                <span style={{ fontFamily: "Tahoma, 'MS Sans Serif', sans-serif", fontSize: 11 }}>
+                    {filteredLocationIds !== null ? `${filteredStops.length} / ${stops.length} stanica` : `${stops.length} stanica`}
+                </span>
                 <button className={winBtn} onClick={openCreate}>+ Dodaj stanicu</button>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                <label className={winLabel} style={{ marginBottom: 0 }}>Filtriraj po liniji:</label>
+                <select
+                    className="win-input"
+                    style={{ width: 'auto' }}
+                    value={filterLineId}
+                    onChange={e => setFilterLineId(e.target.value)}
+                >
+                    <option value="">— Sve stanice —</option>
+                    {lines.map(l => (
+                        <option key={l.id} value={l.id}>{l.number} – {l.lat_name}</option>
+                    ))}
+                </select>
             </div>
 
             {loading ? (
@@ -295,7 +340,7 @@ const StopsTab = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {stops.map((s) => (
+                            {filteredStops.map((s) => (
                                 <tr key={s.id}>
                                     <td style={{ fontFamily: 'monospace', fontSize: 10 }}>{s.id}</td>
                                     <td>{s.lat_name}</td>
