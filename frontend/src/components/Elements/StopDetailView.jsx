@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { NavLink } from 'react-router';
 import useStore from '../../store/client/useStore';
 import { useScript } from '../../context/ScriptContext.jsx';
+import { useRetro } from '../../context/RetroContext.jsx';
 import { nextDepartureMinutes, countdownLabel } from '../../utils/countdown';
 import { useReminders } from '../../hooks/useReminders';
 
@@ -28,6 +29,7 @@ const destLabel = (name, direction) => {
 const StopDetailView = () => {
     const { script } = useScript();
     const isCyrillic = script === 'cyrillic';
+    const { retro } = useRetro();
 
     const selectedStopId = useStore((s) => s.selectedStopId);
     const activeLine = useStore((s) => s.activeLine);
@@ -96,15 +98,18 @@ const StopDetailView = () => {
     return (
         <div className="flex flex-col h-full">
             {/* Header */}
-            <div className="flex items-center gap-2 p-2 px-4 border-b dark:border-white/10 border-black/10 shrink-0">
+            <div className={`flex items-center gap-2 p-2 px-4 shrink-0 ${retro ? 'border-b border-[#808080]' : 'border-b dark:border-white/10 border-black/10'}`}>
                 <button
                     onClick={clearSelectedStop}
-                    className="w-8 h-8 flex items-center justify-center rounded-xl dark:hover:bg-white/10 hover:bg-black/5 transition-colors dark:text-white/60 text-gray-500 shrink-0"
+                    className={retro
+                        ? 'win-btn w-8 h-8 flex items-center justify-center shrink-0'
+                        : 'w-8 h-8 flex items-center justify-center rounded-xl dark:hover:bg-white/10 hover:bg-black/5 transition-colors dark:text-white/60 text-gray-500 shrink-0'
+                    }
                     aria-label="Nazad"
                 >
                     ←
                 </button>
-                <p className="font-semibold text-sm dark:text-white text-gray-900 flex-1 truncate">
+                <p className={`font-semibold text-sm flex-1 truncate ${retro ? '' : 'dark:text-white text-gray-900'}`}>
                     {stopName}
                 </p>
                 <button
@@ -126,16 +131,19 @@ const StopDetailView = () => {
 
             {/* Day-type tabs */}
             {availableTabs && availableTabs.length > 1 && (
-                <div className="flex px-4 pt-3 gap-1 shrink-0">
+                <div className={`flex shrink-0 ${retro ? 'px-2 pt-2 gap-0.5' : 'px-4 pt-3 gap-1'}`}>
                     {availableTabs.map((tab) => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
-                            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                                activeTab === tab
-                                    ? 'dark:bg-white/15 bg-black/10 dark:text-white text-gray-900'
-                                    : 'dark:text-white/40 text-gray-400 dark:hover:bg-white/5 hover:bg-black/5'
-                            }`}
+                            className={retro
+                                ? `win-btn ${activeTab === tab ? 'pressed' : ''}`
+                                : `px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                                    activeTab === tab
+                                        ? 'dark:bg-white/15 bg-black/10 dark:text-white text-gray-900'
+                                        : 'dark:text-white/40 text-gray-400 dark:hover:bg-white/5 hover:bg-black/5'
+                                }`
+                            }
                         >
                             {DAY_LABELS[script]?.[tab] ?? DAY_LABELS.latin[tab]}
                         </button>
@@ -190,22 +198,25 @@ const StopDetailView = () => {
                                 >
                                     {line.number}
                                 </div>
-                                <span className="text-xs dark:text-white/60 text-gray-500">
+                                <span className={retro ? 'text-xs' : 'text-xs dark:text-white/60 text-gray-500'}>
                                     → {dest}
                                 </span>
                             </div>
 
                             {/* Next departure highlight */}
                             {nextDep ? (
-                                <div className="rounded-xl dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border px-3 py-2.5 flex items-baseline gap-2 flex-wrap">
-                                    <span className="font-bold dark:text-white text-gray-900">
+                                <div className={retro
+                                    ? 'retro-card flex items-baseline gap-2 flex-wrap'
+                                    : 'rounded-xl dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border px-3 py-2.5 flex items-baseline gap-2 flex-wrap'
+                                }>
+                                    <span className={`font-bold ${retro ? '' : 'dark:text-white text-gray-900'}`}>
                                         ▶ {countdownLabel(nextMins, isCyrillic)}
                                     </span>
                                     <span className="text-xs font-medium dark:text-white/50 text-gray-500">
                                         {nextDep.fmt}
                                     </span>
                                     {followingDeps.length > 0 && (
-                                        <span className="text-xs dark:text-white/30 text-gray-400">
+                                        <span className={retro ? 'text-xs' : 'text-xs dark:text-white/30 text-gray-400'}>
                                             {isCyrillic ? 'па' : 'pa'}{' '}
                                             {followingDeps.slice(0, 4).map((d) => d.fmt).join(' · ')}
                                             {followingDeps.length > 4 && ' …'}
@@ -229,11 +240,14 @@ const StopDetailView = () => {
                                                         });
                                                     }
                                                 }}
-                                                className={`ml-auto text-xs px-2 py-1 rounded-lg border transition-colors ${
-                                                    scheduled
-                                                        ? 'dark:bg-white/10 bg-black/8 dark:border-white/20 border-black/15 dark:text-white/80 text-gray-700'
-                                                        : 'dark:border-white/10 border-black/10 dark:text-white/40 text-gray-400 dark:hover:bg-white/5 hover:bg-black/5'
-                                                }`}
+                                                className={retro
+                                                    ? `win-btn ml-auto text-xs ${scheduled ? 'win-btn-success' : ''}`
+                                                    : `ml-auto text-xs px-2 py-1 rounded-lg border transition-colors ${
+                                                        scheduled
+                                                            ? 'dark:bg-white/10 bg-black/8 dark:border-white/20 border-black/15 dark:text-white/80 text-gray-700'
+                                                            : 'dark:border-white/10 border-black/10 dark:text-white/40 text-gray-400 dark:hover:bg-white/5 hover:bg-black/5'
+                                                    }`
+                                                }
                                             >
                                                 {scheduled
                                                     ? (isCyrillic ? 'Откажи подсетник' : 'Otkaži podsetnik')
@@ -243,8 +257,13 @@ const StopDetailView = () => {
                                     })()}
                                 </div>
                             ) : (
-                                <div className="rounded-xl dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border px-3 py-2 text-xs dark:text-white/30 text-gray-400">
-                                    {isCyrillic ? 'Нема полазака' : 'Nema polazaka'}
+                                <div className={retro
+                                    ? 'retro-card text-xs'
+                                    : 'rounded-xl dark:bg-white/5 bg-black/5 dark:border-white/10 border-black/10 border px-3 py-2 text-xs dark:text-white/30 text-gray-400'
+                                }>
+                                    <span className={retro ? '' : 'dark:text-white/30 text-gray-400'}>
+                                        {isCyrillic ? 'Нема полазака' : 'Nema polazaka'}
+                                    </span>
                                 </div>
                             )}
 
@@ -256,13 +275,16 @@ const StopDetailView = () => {
                                         return (
                                             <span
                                                 key={`${d.fmt}-${idx}`}
-                                                className={`text-xs px-2 py-1 rounded-lg border ${
-                                                    isNext
-                                                        ? 'dark:bg-white/20 bg-black/10 dark:border-white/20 border-black/15 font-semibold dark:text-white text-gray-900'
-                                                        : idx < past.length
-                                                        ? 'dark:bg-white/3 bg-black/3 dark:border-white/5 border-black/5 dark:text-white/20 text-gray-300'
-                                                        : 'dark:bg-white/8 bg-black/5 dark:border-white/10 border-black/10 dark:text-white/70 text-gray-600'
-                                                }`}
+                                                className={retro
+                                                    ? `win-btn text-xs cursor-default ${isNext ? 'pressed' : ''} ${idx < past.length ? 'opacity-40' : ''}`
+                                                    : `text-xs px-2 py-1 rounded-lg border ${
+                                                        isNext
+                                                            ? 'dark:bg-white/20 bg-black/10 dark:border-white/20 border-black/15 font-semibold dark:text-white text-gray-900'
+                                                            : idx < past.length
+                                                            ? 'dark:bg-white/3 bg-black/3 dark:border-white/5 border-black/5 dark:text-white/20 text-gray-300'
+                                                            : 'dark:bg-white/8 bg-black/5 dark:border-white/10 border-black/10 dark:text-white/70 text-gray-600'
+                                                    }`
+                                                }
                                             >
                                                 {d.fmt}
                                             </span>
@@ -274,7 +296,10 @@ const StopDetailView = () => {
                             {/* Timetable link */}
                             <NavLink
                                 to={`/red-voznje/${line.id}`}
-                                className="text-xs dark:text-white/40 text-gray-400 dark:hover:text-white/70 hover:text-gray-700 transition-colors self-start text-left"
+                                className={retro
+                                    ? 'win-btn text-xs self-start text-left mt-1'
+                                    : 'text-xs dark:text-white/40 text-gray-400 dark:hover:text-white/70 hover:text-gray-700 transition-colors self-start text-left'
+                                }
                             >
                                 {isCyrillic
                                     ? `Цео ред вожње за линију ${line.number} ›`
